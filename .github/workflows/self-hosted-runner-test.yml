@@ -1,0 +1,85 @@
+name: Self-Hosted Runner Verification
+
+on:
+  workflow_dispatch:
+    inputs:
+      runner_label:
+        description: 'Runner label to target (default: self-hosted)'
+        required: false
+        default: 'self-hosted'
+  pull_request:
+    paths:
+      - '.github/workflows/self-hosted-runner-test.yml'
+
+jobs:
+  verify-runner:
+    runs-on: ${{ github.event.inputs.runner_label || 'self-hosted' }}
+    timeout-minutes: 10
+
+    steps:
+      - name: Runner environment info
+        run: |
+          echo "========== Runner Verification =========="
+          echo "Runner Name:     $RUNNER_NAME"
+          echo "Runner OS:       $RUNNER_OS"
+          echo "Runner Arch:     $RUNNER_ARCH"
+          echo "Runner Temp:     $RUNNER_TEMP"
+          echo "Workflow:        $GITHUB_WORKFLOW"
+          echo "Repository:      $GITHUB_REPOSITORY"
+          echo "Event:           $GITHUB_EVENT_NAME"
+          echo "Ref:             $GITHUB_REF"
+          echo "SHA:             $GITHUB_SHA"
+          echo "========================================="
+
+      - name: System information
+        run: |
+          echo "--- OS ---"
+          uname -a
+          echo ""
+          echo "--- CPU ---"
+          nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo "unknown"
+          echo ""
+          echo "--- Memory ---"
+          free -h 2>/dev/null || vm_stat 2>/dev/null || echo "unknown"
+          echo ""
+          echo "--- Disk ---"
+          df -h . 2>/dev/null || echo "unknown"
+
+      - name: Check GPU availability
+        continue-on-error: true
+        run: |
+          echo "--- GPU Check ---"
+          if command -v nvidia-smi &> /dev/null; then
+            nvidia-smi
+          else
+            echo "nvidia-smi not found, no NVIDIA GPU or driver not installed"
+          fi
+
+      - name: Check common tools
+        run: |
+          echo "--- Tool Versions ---"
+          echo -n "git:    " && git --version 2>/dev/null || echo "not found"
+          echo -n "python: " && python3 --version 2>/dev/null || echo "not found"
+          echo -n "pip:    " && pip3 --version 2>/dev/null || echo "not found"
+          echo -n "docker: " && docker --version 2>/dev/null || echo "not found"
+          echo -n "curl:   " && curl --version 2>/dev/null | head -1 || echo "not found"
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify checkout
+        run: |
+          echo "--- Repo Checkout ---"
+          echo "Working directory: $(pwd)"
+          echo "Files in root:"
+          ls -la | head -20
+          echo ""
+          echo "Git status:"
+          git log --oneline -3
+
+      - name: Runner verification complete
+        run: |
+          echo "============================================"
+          echo "  Self-hosted runner verification PASSED!"
+          echo "  Runner '$RUNNER_NAME' is working correctly."
+          echo "============================================"
