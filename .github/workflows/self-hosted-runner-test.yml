@@ -67,7 +67,7 @@ jobs:
           echo "--- Repo Checkout ---"
           echo "Working directory: $(pwd)"
           echo "Files in root:"
-          ls -la | head -20
+          find . -maxdepth 1 -printf '%M %u %g %s %f\n' 2>/dev/null | head -20 || ls -la | head -20
           echo ""
           echo "Git status:"
           git log --oneline -3
