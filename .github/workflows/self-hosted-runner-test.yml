@@ -2,18 +2,13 @@ name: Self-Hosted Runner Verification
 
 on:
   workflow_dispatch:
-    inputs:
-      runner_label:
-        description: 'Runner label to target (default: self-hosted)'
-        required: false
-        default: 'self-hosted'
   pull_request:
     paths:
       - '.github/workflows/self-hosted-runner-test.yml'
 
 jobs:
   verify-runner:
-    runs-on: ${{ github.event.inputs.runner_label || 'self-hosted' }}
+    runs-on: [self-hosted, Linux, X64, A100]
     timeout-minutes: 10
 
     steps:
