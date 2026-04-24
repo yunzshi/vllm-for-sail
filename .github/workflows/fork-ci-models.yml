@@ -20,6 +20,9 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 25
     steps:
+      - name: Clean workspace
+        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
+
       - name: Install git
         run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
@@ -44,6 +47,9 @@ jobs:
       matrix:
         shard: [0, 1]
     steps:
+      - name: Clean workspace
+        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
+
       - name: Install git
         run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
@@ -68,6 +74,9 @@ jobs:
       matrix:
         shard: [0, 1]
     steps:
+      - name: Clean workspace
+        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
+
       - name: Install git
         run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
@@ -90,6 +99,9 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 110
     steps:
+      - name: Clean workspace
+        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
+
       - name: Install git
         run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
@@ -112,6 +124,9 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 110
     steps:
+      - name: Clean workspace
+        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
+
       - name: Install git
         run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
@@ -131,6 +146,9 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 50
     steps:
+      - name: Clean workspace
+        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
+
       - name: Install git
         run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
@@ -150,6 +168,9 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 110
     steps:
+      - name: Clean workspace
+        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
+
       - name: Install git
         run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
@@ -170,6 +191,9 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 80
     steps:
+      - name: Clean workspace
+        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
+
       - name: Install git
         run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
@@ -193,6 +217,9 @@ jobs:
       options: --shm-size=10g
     timeout-minutes: 60
     steps:
+      - name: Clean workspace
+        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
+
       - name: Install git
         run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
@@ -214,6 +241,9 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 60
     steps:
+      - name: Clean workspace
+        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
+
       - name: Install git
         run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
@@ -235,6 +265,9 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 70
     steps:
+      - name: Clean workspace
+        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
+
       - name: Install git
         run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
@@ -254,6 +287,9 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 80
     steps:
+      - name: Clean workspace
+        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
+
       - name: Install git
         run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
@@ -275,6 +311,9 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 80
     steps:
+      - name: Clean workspace
+        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
+
       - name: Install git
         run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
@@ -296,6 +335,9 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 80
     steps:
+      - name: Clean workspace
+        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
+
       - name: Install git
         run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
@@ -318,6 +360,9 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 45
     steps:
+      - name: Clean workspace
+        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
+
       - name: Install git
         run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
@@ -340,6 +385,9 @@ jobs:
       matrix:
         shard: [0, 1]
     steps:
+      - name: Clean workspace
+        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
+
       - name: Install git
         run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
@@ -359,6 +407,9 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 45
     steps:
+      - name: Clean workspace
+        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
+
       - name: Install git
         run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
@@ -378,6 +429,9 @@ jobs:
       options: --shm-size=10g
     timeout-minutes: 10
     steps:
+      - name: Clean workspace
+        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
+
       - name: Install git
         run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
@@ -398,6 +452,9 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 50
     steps:
+      - name: Clean workspace
+        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
+
       - name: Install git
         run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
