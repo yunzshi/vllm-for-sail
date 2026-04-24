@@ -1,0 +1,300 @@
+# ==============================================================================
+# Fork CI - Functional Tests
+# ==============================================================================
+# Test areas: lora, quantization, samplers, pytorch, plugins, ray_compat, weight_loading
+# Source: .buildkite/test_areas/{lora,quantization,samplers,pytorch,plugins,ray_compat,weight_loading}.yaml
+# ==============================================================================
+
+name: "Fork CI - Functional"
+
+on:
+  workflow_call:
+
+jobs:
+  # --- LoRA ---
+  lora:
+    name: "LoRA (${{ matrix.shard }})"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        shard: [0, 1, 2, 3]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: >
+          pytest -v -s lora
+          --shard-id=${{ matrix.shard }} --num-shards=4
+          --ignore=lora/test_chatglm3_tp.py
+          --ignore=lora/test_llama_tp.py
+          --ignore=lora/test_llm_with_multi_loras.py
+          --ignore=lora/test_olmoe_tp.py
+          --ignore=lora/test_deepseekv2_tp.py
+          --ignore=lora/test_gptoss_tp.py
+          --ignore=lora/test_qwen3moe_tp.py
+
+  lora-tp:
+    name: "LoRA TP (4 GPUs)"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: |
+          export VLLM_WORKER_MULTIPROC_METHOD=spawn
+          export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+          pytest -v -s -x lora/test_chatglm3_tp.py
+          pytest -v -s -x lora/test_llama_tp.py
+          pytest -v -s -x lora/test_llm_with_multi_loras.py
+          pytest -v -s -x lora/test_olmoe_tp.py
+          pytest -v -s -x lora/test_gptoss_tp.py
+
+  # --- Quantization ---
+  quantization:
+    name: "Quantization"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: |
+          uv pip install --system torchao==0.14.1 --index-url https://download.pytorch.org/whl/cu129
+          uv pip install --system conch-triton-kernels
+          VLLM_TEST_FORCE_LOAD_FORMAT=auto pytest -v -s quantization/ --ignore quantization/test_blackwell_moe.py
+
+  quantized-moe-b200:
+    name: "Quantized MoE (B200)"
+    runs-on: [self-hosted, Linux, X64, B200]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        run: pytest -s -v tests/quantization/test_blackwell_moe.py
+
+  quantized-models:
+    name: "Quantized Models"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: pytest -v -s models/quantization
+
+  # --- Samplers ---
+  samplers:
+    name: "Samplers"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: |
+          pytest -v -s samplers
+          VLLM_USE_FLASHINFER_SAMPLER=1 pytest -v -s samplers
+
+  # --- PyTorch ---
+  pytorch-compile-unit:
+    name: "PyTorch Compilation Unit Tests"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: "find compile/ -maxdepth 1 -name 'test_*.py' -print0 | xargs -0 -n1 -I{} pytest -s -v '{}'"
+
+  pytorch-passes:
+    name: "PyTorch Compilation Passes Unit Tests"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: pytest -s -v compile/passes --ignore compile/passes/distributed
+
+  pytorch-fullgraph-smoke:
+    name: "PyTorch Fullgraph Smoke Test"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: "find compile/fullgraph/ -name 'test_*.py' -not -name 'test_full_graph.py' -exec pytest -s -v {} \\;"
+
+  pytorch-fullgraph:
+    name: "PyTorch Fullgraph"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: pytest -v -s compile/fullgraph/test_full_graph.py -k 'not test_fp8_kv_scale_compile'
+
+  pytorch-nightly-check:
+    name: "PyTorch Nightly Dependency Check"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 10
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: bash standalone_tests/pytorch_nightly_dependency.sh
+
+  # --- Plugins ---
+  plugins:
+    name: "Plugin Tests (2 GPUs)"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: |
+          pip install -e ./plugins/vllm_add_dummy_platform
+          pytest -v -s plugins_tests/test_platform_plugins.py
+          pip uninstall vllm_add_dummy_platform -y
+          pytest -v -s ./plugins_tests/test_io_processor_plugins.py
+          pip install -e ./plugins/prithvi_io_processor_plugin
+          pytest -v -s plugins_tests/test_terratorch_io_processor_plugins.py
+          pip uninstall prithvi_io_processor_plugin -y
+          pip install -e ./plugins/bge_m3_sparse_plugin
+          pytest -v -s plugins_tests/test_bge_m3_sparse_io_processor_plugins.py
+          pip uninstall bge_m3_sparse_plugin -y
+          pip install -e ./plugins/vllm_add_dummy_stat_logger
+          pytest -v -s plugins_tests/test_stats_logger_plugins.py
+          pip uninstall dummy_stat_logger -y
+          pytest -v -s plugins_tests/test_scheduler_plugins.py
+          pip install -e ./plugins/vllm_add_dummy_model
+          pytest -v -s distributed/test_distributed_oot.py
+          pytest -v -s entrypoints/openai/test_oot_registration.py
+          pytest -v -s models/test_oot_registration.py
+          pytest -v -s plugins/lora_resolvers
+
+  # --- Ray Compatibility ---
+  ray-compat:
+    name: "Ray Dependency Compatibility Check"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 10
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        run: bash .buildkite/scripts/check-ray-compatibility.sh
+
+  # --- Weight Loading ---
+  weight-loading:
+    name: "Weight Loading (2 GPUs)"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: bash weight_loading/run_model_weight_loading_test.sh -c weight_loading/models.txt

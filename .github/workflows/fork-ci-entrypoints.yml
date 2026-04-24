@@ -1,0 +1,163 @@
+# ==============================================================================
+# Fork CI - Entrypoints Tests
+# ==============================================================================
+# Test areas: entrypoints
+# Source: .buildkite/test_areas/entrypoints.yaml
+# ==============================================================================
+
+name: "Fork CI - Entrypoints"
+
+on:
+  workflow_call:
+
+jobs:
+  entrypoints-unit:
+    name: "Entrypoints Unit Tests"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: |
+          pytest -v -s entrypoints/openai/tool_parsers
+          pytest -v -s entrypoints/ --ignore=entrypoints/llm --ignore=entrypoints/rpc --ignore=entrypoints/sleep --ignore=entrypoints/instrumentator --ignore=entrypoints/openai --ignore=entrypoints/offline_mode --ignore=entrypoints/test_chat_utils.py --ignore=entrypoints/pooling
+
+  entrypoints-llm:
+    name: "Entrypoints Integration (LLM)"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: |
+          export VLLM_WORKER_MULTIPROC_METHOD=spawn
+          pytest -v -s entrypoints/llm --ignore=entrypoints/llm/test_generate.py --ignore=entrypoints/llm/test_collective_rpc.py
+          pytest -v -s entrypoints/llm/test_generate.py
+          pytest -v -s entrypoints/offline_mode
+
+  entrypoints-api-server-1:
+    name: "Entrypoints Integration (API Server 1)"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 130
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: |
+          export VLLM_WORKER_MULTIPROC_METHOD=spawn
+          pytest -v -s entrypoints/openai --ignore=entrypoints/openai/test_chat_with_tool_reasoning.py --ignore=entrypoints/openai/test_oot_registration.py --ignore=entrypoints/openai/test_tensorizer_entrypoint.py --ignore=entrypoints/openai/correctness/ --ignore=entrypoints/openai/tool_parsers/ --ignore=entrypoints/openai/responses
+          pytest -v -s entrypoints/test_chat_utils.py
+
+  entrypoints-api-server-2:
+    name: "Entrypoints Integration (API Server 2)"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 130
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: |
+          export VLLM_WORKER_MULTIPROC_METHOD=spawn
+          pytest -v -s entrypoints/instrumentator
+          PYTHONPATH=$GITHUB_WORKSPACE pytest -v -s entrypoints/rpc
+          pytest -v -s tool_use
+
+  entrypoints-pooling:
+    name: "Entrypoints Integration (Pooling)"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: |
+          export VLLM_WORKER_MULTIPROC_METHOD=spawn
+          pytest -v -s entrypoints/pooling
+
+  entrypoints-responses:
+    name: "Entrypoints Integration (Responses API)"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: pytest -v -s entrypoints/openai/responses
+
+  entrypoints-v1:
+    name: "Entrypoints V1"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: pytest -v -s v1/entrypoints
+
+  openai-correctness:
+    name: "OpenAI API Correctness"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: pytest -s entrypoints/openai/correctness/

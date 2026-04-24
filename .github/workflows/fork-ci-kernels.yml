@@ -1,0 +1,253 @@
+# ==============================================================================
+# Fork CI - Kernels Tests
+# ==============================================================================
+# Test areas: kernels
+# Source: .buildkite/test_areas/kernels.yaml
+# ==============================================================================
+
+name: "Fork CI - Kernels"
+
+on:
+  workflow_call:
+
+jobs:
+  kernels-core:
+    name: "Kernels Core Operation"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: pytest -v -s kernels/core kernels/test_top_k_per_row.py
+
+  kernels-attention:
+    name: "Kernels Attention (${{ matrix.shard }})"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 35
+    strategy:
+      matrix:
+        shard: [0, 1]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: pytest -v -s kernels/attention --shard-id=${{ matrix.shard }} --num-shards=2
+
+  kernels-quantization:
+    name: "Kernels Quantization (${{ matrix.shard }})"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 90
+    strategy:
+      matrix:
+        shard: [0, 1]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: pytest -v -s kernels/quantization --shard-id=${{ matrix.shard }} --num-shards=2
+
+  kernels-moe:
+    name: "Kernels MoE (${{ matrix.shard }})"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        shard: [0, 1]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: |
+          pytest -v -s kernels/moe --ignore=kernels/moe/test_modular_oai_triton_moe.py --shard-id=${{ matrix.shard }} --num-shards=2
+          pytest -v -s kernels/moe/test_modular_oai_triton_moe.py --shard-id=${{ matrix.shard }} --num-shards=2
+
+  kernels-mamba:
+    name: "Kernels Mamba"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: pytest -v -s kernels/mamba
+
+  kernels-deepgemm-h100:
+    name: "Kernels DeepGEMM (H100)"
+    runs-on: [self-hosted, Linux, X64, H100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: |
+          pytest -v -s kernels/quantization/test_block_fp8.py
+          pytest -v -s kernels/moe/test_deepgemm.py
+          pytest -v -s kernels/moe/test_batched_deepgemm.py
+          pytest -v -s kernels/attention/test_deepgemm_attention.py
+
+  kernels-b200:
+    name: "Kernels (B200)"
+    runs-on: [self-hosted, Linux, X64, B200]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        run: |
+          nvidia-smi
+          python3 examples/offline_inference/basic/chat.py
+          # Attention
+          pytest -v -s tests/kernels/attention/test_attention_selector.py
+          pytest -v -s tests/kernels/attention/test_flashinfer.py -k 'not num_heads2'
+          pytest -v -s tests/kernels/attention/test_flashinfer_trtllm_attention.py
+          pytest -v -s tests/kernels/attention/test_cutlass_mla_decode.py
+          pytest -v -s tests/kernels/attention/test_flashinfer_mla_decode.py
+          # Quantization
+          pytest -v -s tests/kernels/quantization/test_cutlass_scaled_mm.py -k 'fp8'
+          pytest -v -s tests/kernels/quantization/test_nvfp4_quant.py
+          pytest -v -s tests/kernels/quantization/test_silu_mul_nvfp4_quant.py
+          pytest -v -s tests/kernels/quantization/test_nvfp4_scaled_mm.py
+          pytest -v -s tests/kernels/quantization/test_flashinfer_scaled_mm.py
+          pytest -v -s tests/kernels/quantization/test_flashinfer_nvfp4_scaled_mm.py
+          pytest -v -s tests/kernels/quantization/test_nvfp4_qutlass.py
+          pytest -v -s tests/kernels/quantization/test_mxfp4_qutlass.py
+          pytest -v -s tests/kernels/moe/test_nvfp4_moe.py
+          pytest -v -s tests/kernels/moe/test_ocp_mx_moe.py
+          pytest -v -s tests/kernels/moe/test_flashinfer.py
+          pytest -v -s tests/kernels/moe/test_flashinfer_moe.py
+          pytest -v -s tests/kernels/moe/test_cutedsl_moe.py
+          # e2e
+          pytest -v -s tests/models/quantization/test_nvfp4.py
+
+  kernels-helion-h100:
+    name: "Kernels Helion (H100)"
+    runs-on: [self-hosted, Linux, X64, H100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: |
+          pip install helion
+          pytest -v -s kernels/helion/
+
+  kernels-fp8-moe-1h100:
+    name: "Kernels FP8 MoE (1 H100)"
+    runs-on: [self-hosted, Linux, X64, H100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: |
+          pytest -v -s kernels/moe/test_cutlass_moe.py
+          pytest -v -s kernels/moe/test_flashinfer.py
+          pytest -v -s kernels/moe/test_gpt_oss_triton_kernels.py
+          pytest -v -s kernels/moe/test_modular_oai_triton_moe.py
+          pytest -v -s kernels/moe/test_moe.py
+          pytest -v -s kernels/moe/test_block_int8.py
+          pytest -v -s kernels/moe/test_triton_moe_no_act_mul.py
+          pytest -v -s kernels/moe/test_triton_moe_ptpc_fp8.py
+
+  kernels-fp8-moe-2h100:
+    name: "Kernels FP8 MoE (2 H100s)"
+    runs-on: [self-hosted, Linux, X64, H100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: |
+          pytest -v -s kernels/moe/test_deepep_deepgemm_moe.py
+          pytest -v -s kernels/moe/test_deepep_moe.py
+
+  kernels-fp4-moe-b200:
+    name: "Kernels FP4 MoE (B200)"
+    runs-on: [self-hosted, Linux, X64, B200]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: |
+          pytest -v -s kernels/moe/test_cutedsl_moe.py
+          pytest -v -s kernels/moe/test_flashinfer_moe.py
+          pytest -v -s kernels/moe/test_nvfp4_moe.py
+          pytest -v -s kernels/moe/test_ocp_mx_moe.py

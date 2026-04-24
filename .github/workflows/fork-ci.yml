@@ -1,0 +1,126 @@
+# ==============================================================================
+# Fork CI - Entry Workflow
+# ==============================================================================
+# Main entry point for running vLLM CI tests on fork repositories.
+# Uses self-hosted runners with Docker-based test execution.
+#
+# Architecture:
+#   1. detect-changes job: runs detect-changes.sh to determine affected groups
+#   2. Conditionally calls 8 sub-workflows based on changed files
+#
+# Sub-workflows:
+#   fork-ci-core.yml         → attention, basic_correctness, cuda, engine, model_executor
+#   fork-ci-kernels.yml      → kernels
+#   fork-ci-compile.yml      → compile
+#   fork-ci-distributed.yml  → distributed, expert_parallelism
+#   fork-ci-entrypoints.yml  → entrypoints
+#   fork-ci-models.yml       → models_language, models_multimodal, models_basic, models_distributed
+#   fork-ci-functional.yml   → lora, quantization, samplers, pytorch, plugins, ray_compat, weight_loading
+#   fork-ci-misc.yml         → misc, benchmarks, lm_eval, e2e_integration
+# ==============================================================================
+
+name: Fork CI
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      run_all:
+        description: 'Force run all test groups'
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: fork-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOCKER_IMAGE_PLACEHOLDER: "REPLACE_WITH_YOUR_DOCKER_IMAGE"
+
+jobs:
+  # ============================================================================
+  # Stage 1: Detect which test groups need to run
+  # ============================================================================
+  detect-changes:
+    runs-on: [self-hosted, Linux, X64, A100]
+    outputs:
+      run_core: ${{ steps.detect.outputs.run_core }}
+      run_kernels: ${{ steps.detect.outputs.run_kernels }}
+      run_compile: ${{ steps.detect.outputs.run_compile }}
+      run_distributed: ${{ steps.detect.outputs.run_distributed }}
+      run_entrypoints: ${{ steps.detect.outputs.run_entrypoints }}
+      run_models: ${{ steps.detect.outputs.run_models }}
+      run_functional: ${{ steps.detect.outputs.run_functional }}
+      run_misc: ${{ steps.detect.outputs.run_misc }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changes
+        id: detect
+        run: |
+          if [ "${{ github.event.inputs.run_all }}" = "true" ]; then
+            echo "::notice::Force run_all via workflow_dispatch"
+            for group in core kernels compile distributed entrypoints models functional misc; do
+              echo "run_${group}=true" >> "$GITHUB_OUTPUT"
+            done
+          else
+            bash .github/scripts/detect-changes.sh origin/${{ github.base_ref || 'main' }}
+          fi
+
+  # ============================================================================
+  # Stage 2: Conditionally run sub-workflows
+  # ============================================================================
+  # [TEMPORARY] Only run core for initial validation
+  core:
+    needs: detect-changes
+    if: true  # Force run for validation
+    uses: ./.github/workflows/fork-ci-core.yml
+    secrets: inherit
+
+  # [TEMPORARY] Disabled for initial validation - uncomment after verified
+  # kernels:
+  #   needs: detect-changes
+  #   if: needs.detect-changes.outputs.run_kernels == 'true'
+  #   uses: ./.github/workflows/fork-ci-kernels.yml
+  #   secrets: inherit
+  #
+  # compile:
+  #   needs: detect-changes
+  #   if: needs.detect-changes.outputs.run_compile == 'true'
+  #   uses: ./.github/workflows/fork-ci-compile.yml
+  #   secrets: inherit
+  #
+  # distributed:
+  #   needs: detect-changes
+  #   if: needs.detect-changes.outputs.run_distributed == 'true'
+  #   uses: ./.github/workflows/fork-ci-distributed.yml
+  #   secrets: inherit
+  #
+  # entrypoints:
+  #   needs: detect-changes
+  #   if: needs.detect-changes.outputs.run_entrypoints == 'true'
+  #   uses: ./.github/workflows/fork-ci-entrypoints.yml
+  #   secrets: inherit
+  #
+  # models:
+  #   needs: detect-changes
+  #   if: needs.detect-changes.outputs.run_models == 'true'
+  #   uses: ./.github/workflows/fork-ci-models.yml
+  #   secrets: inherit
+  #
+  # functional:
+  #   needs: detect-changes
+  #   if: needs.detect-changes.outputs.run_functional == 'true'
+  #   uses: ./.github/workflows/fork-ci-functional.yml
+  #   secrets: inherit
+  #
+  # misc:
+  #   needs: detect-changes
+  #   if: needs.detect-changes.outputs.run_misc == 'true'
+  #   uses: ./.github/workflows/fork-ci-misc.yml
+  #   secrets: inherit

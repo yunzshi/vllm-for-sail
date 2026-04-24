@@ -1,0 +1,252 @@
+# ==============================================================================
+# Fork CI - Compile Tests
+# ==============================================================================
+# Test areas: compile
+# Source: .buildkite/test_areas/compile.yaml
+# ==============================================================================
+
+name: "Fork CI - Compile"
+
+on:
+  workflow_call:
+
+jobs:
+  seq-parallel-2gpu:
+    name: "Sequence Parallel Correctness (2 GPUs)"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        run: |
+          export VLLM_TEST_CLEAN_GPU_MEMORY=1
+          pytest -v -s tests/compile/correctness_e2e/test_sequence_parallel.py
+
+  seq-parallel-2xh100:
+    name: "Sequence Parallel Correctness (2xH100)"
+    runs-on: [self-hosted, Linux, X64, H100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        run: |
+          export VLLM_TEST_CLEAN_GPU_MEMORY=1
+          pytest -v -s tests/compile/correctness_e2e/test_sequence_parallel.py
+
+  async-tp-2xh100:
+    name: "AsyncTP Correctness (2xH100)"
+    runs-on: [self-hosted, Linux, X64, H100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        run: |
+          export VLLM_TEST_CLEAN_GPU_MEMORY=1
+          pytest -v -s tests/compile/correctness_e2e/test_async_tp.py
+
+  async-tp-b200:
+    name: "AsyncTP Correctness (B200)"
+    runs-on: [self-hosted, Linux, X64, B200]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        run: |
+          export VLLM_TEST_CLEAN_GPU_MEMORY=1
+          pytest -v -s tests/compile/correctness_e2e/test_async_tp.py
+
+  distributed-compile-2xh100:
+    name: "Distributed Compile Unit Tests (2xH100)"
+    runs-on: [self-hosted, Linux, X64, H100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        run: |
+          export VLLM_TEST_CLEAN_GPU_MEMORY=1
+          pytest -s -v tests/compile/passes/distributed
+
+  fusion-compile-b200:
+    name: "Fusion and Compile Unit Tests (B200)"
+    runs-on: [self-hosted, Linux, X64, B200]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        run: |
+          nvidia-smi
+          pytest -v -s tests/compile/passes/test_fusion_attn.py -k FLASHINFER
+          pytest -v -s tests/compile/passes/test_silu_mul_quant_fusion.py
+          pytest -v -s tests/compile/passes/distributed/test_fusion_all_reduce.py
+          pytest -v -s tests/compile/fullgraph/test_full_graph.py::test_fp8_kv_scale_compile
+
+  fusion-e2e-quick-h100:
+    name: "Fusion E2E Quick (H100)"
+    runs-on: [self-hosted, Linux, X64, H100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        run: |
+          nvidia-smi
+          pytest -v -s tests/compile/fusions_e2e/test_tp1_quant.py -k "inductor_partition and not +rms_norm and not +quant_fp8"
+          pytest -v -s tests/compile/fusions_e2e/test_tp1_quant.py -k "inductor_partition and not +rms_norm and +quant_fp8 and qwen3"
+
+  fusion-e2e-config-sweep-h100:
+    name: "Fusion E2E Config Sweep (H100)"
+    runs-on: [self-hosted, Linux, X64, H100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        run: |
+          nvidia-smi
+          pytest -v -s tests/compile/fusions_e2e/test_tp1_quant.py -k "llama-3"
+
+  fusion-e2e-config-sweep-b200:
+    name: "Fusion E2E Config Sweep (B200)"
+    runs-on: [self-hosted, Linux, X64, B200]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        run: |
+          nvidia-smi
+          pytest -v -s tests/compile/fusions_e2e/test_tp1_quant.py -k "inductor_partition and (FLASHINFER and not +rms_norm and (not +quant_fp8 or +quant_fp8 and qwen3) or llama-3)"
+
+  fusion-e2e-tp2-quick-h100:
+    name: "Fusion E2E TP2 Quick (H100)"
+    runs-on: [self-hosted, Linux, X64, H100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        run: |
+          nvidia-smi
+          pytest -v -s tests/compile/fusions_e2e/test_tp2_ar_rms.py -k "inductor_partition and not +rms_norm and not +quant_fp8"
+          pytest -v -s tests/compile/fusions_e2e/test_tp2_async_tp.py -k "inductor_partition and not +rms_norm and not +quant_fp8"
+
+  fusion-e2e-tp2-ar-rms-h100:
+    name: "Fusion E2E TP2 AR-RMS Config Sweep (H100)"
+    runs-on: [self-hosted, Linux, X64, H100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        run: |
+          nvidia-smi
+          pytest -v -s tests/compile/fusions_e2e/test_tp2_ar_rms.py -k "llama-3"
+
+  fusion-e2e-tp2-asynctp-h100:
+    name: "Fusion E2E TP2 AsyncTP Config Sweep (H100)"
+    runs-on: [self-hosted, Linux, X64, H100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        run: |
+          nvidia-smi
+          pytest -v -s tests/compile/fusions_e2e/test_tp2_async_tp.py -k "llama-3"
+
+  fusion-e2e-tp2-b200:
+    name: "Fusion E2E TP2 (B200)"
+    runs-on: [self-hosted, Linux, X64, B200]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        run: |
+          nvidia-smi
+          pytest -v -s tests/compile/fusions_e2e/test_tp2_ar_rms.py -k "(FLASHINFER and inductor_partition and not +rms_norm and (not +quant_fp8 or +quant_fp8 and qwen3)) or Llama-3.1-8B-Instruct-FP4"
+          pytest -v -s tests/compile/fusions_e2e/test_tp2_async_tp.py -k "FLASHINFER and inductor_partition and not +rms_norm and (not +quant_fp8 or +quant_fp8 and qwen3)"

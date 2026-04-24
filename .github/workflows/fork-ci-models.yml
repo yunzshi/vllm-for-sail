@@ -1,0 +1,378 @@
+# ==============================================================================
+# Fork CI - Models Tests
+# ==============================================================================
+# Test areas: models_language, models_multimodal, models_basic, models_distributed
+# Source: .buildkite/test_areas/{models_language,models_multimodal,models_basic,models_distributed}.yaml
+# ==============================================================================
+
+name: "Fork CI - Models"
+
+on:
+  workflow_call:
+
+jobs:
+  # --- Models Language ---
+  lang-standard:
+    name: "Language Models (Standard)"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: |
+          pip freeze | grep -E 'torch'
+          pytest -v -s models/language -m 'core_model and (not slow_test)'
+
+  lang-extra-standard:
+    name: "Language Models (Extra Standard ${{ matrix.shard }})"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 45
+    strategy:
+      matrix:
+        shard: [0, 1]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: |
+          pip freeze | grep -E 'torch'
+          pytest -v -s models/language -m 'core_model and slow_test' --num-shards=2 --shard-id=${{ matrix.shard }}
+
+  lang-hybrid:
+    name: "Language Models (Hybrid ${{ matrix.shard }})"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 75
+    strategy:
+      matrix:
+        shard: [0, 1]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: |
+          uv pip install --system --no-build-isolation 'git+https://github.com/state-spaces/mamba@v2.3.0'
+          uv pip install --system --no-build-isolation 'git+https://github.com/Dao-AILab/causal-conv1d@v1.5.2'
+          pytest -v -s models/language/generation -m hybrid_model --num-shards=2 --shard-id=${{ matrix.shard }}
+
+  lang-extended-gen:
+    name: "Language Models (Extended Generation)"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 110
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: |
+          uv pip install --system --no-build-isolation 'git+https://github.com/state-spaces/mamba@v2.3.0'
+          uv pip install --system --no-build-isolation 'git+https://github.com/Dao-AILab/causal-conv1d@v1.5.2'
+          pytest -v -s models/language/generation -m '(not core_model) and (not hybrid_model)'
+
+  lang-ppl:
+    name: "Language Models (PPL)"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 110
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: pytest -v -s models/language/generation_ppl_test
+
+  lang-extended-pooling:
+    name: "Language Models (Extended Pooling)"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: pytest -v -s models/language/pooling -m 'not core_model'
+
+  lang-mteb:
+    name: "Language Models (MTEB)"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 110
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: pytest -v -s models/language/pooling_mteb_test
+
+  # --- Models Multimodal ---
+  mm-standard:
+    name: "Multi-Modal Models (Standard)"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 80
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: |
+          pip install git+https://github.com/TIGER-AI-Lab/Mantis.git
+          pip freeze | grep -E 'torch'
+          pytest -v -s models/multimodal -m core_model --ignore models/multimodal/generation/test_whisper.py --ignore models/multimodal/processing
+          cd .. && VLLM_WORKER_MULTIPROC_METHOD=spawn pytest -v -s tests/models/multimodal/generation/test_whisper.py -m core_model
+
+  mm-processor-cpu:
+    name: "Multi-Modal Processor (CPU)"
+    runs-on: [self-hosted, Linux, X64]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --shm-size=10g
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: |
+          pip install git+https://github.com/TIGER-AI-Lab/Mantis.git
+          pytest -v -s models/multimodal/processing --ignore models/multimodal/processing/test_tensor_schema.py
+
+  mm-processor:
+    name: "Multi-Modal Processor"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: |
+          pip install git+https://github.com/TIGER-AI-Lab/Mantis.git
+          pytest -v -s models/multimodal/processing/test_tensor_schema.py
+
+  mm-accuracy-eval:
+    name: "Multi-Modal Accuracy Eval (Small Models)"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 70
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: .buildkite/lm-eval-harness
+        run: pytest -s -v test_lm_eval_correctness.py --config-list-file=configs/models-mm-small.txt --tp-size=1
+
+  mm-extended-1:
+    name: "Multi-Modal Models (Extended) 1"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 80
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: |
+          pip install git+https://github.com/TIGER-AI-Lab/Mantis.git
+          pytest -v -s models/multimodal -m 'not core_model' --ignore models/multimodal/generation/test_common.py --ignore models/multimodal/processing
+
+  mm-extended-2:
+    name: "Multi-Modal Models (Extended) 2"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 80
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: |
+          pip install git+https://github.com/TIGER-AI-Lab/Mantis.git
+          pytest -v -s models/multimodal/generation/test_common.py -m 'split(group=0) and not core_model'
+
+  mm-extended-3:
+    name: "Multi-Modal Models (Extended) 3"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 80
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: |
+          pip install git+https://github.com/TIGER-AI-Lab/Mantis.git
+          pytest -v -s models/multimodal/generation/test_common.py -m 'split(group=1) and not core_model'
+
+  # --- Models Basic ---
+  basic-init:
+    name: "Basic Models (Initialization)"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: pytest -v -s models/test_initialization.py::test_can_initialize_small_subset
+
+  basic-extra-init:
+    name: "Basic Models (Extra Init ${{ matrix.shard }})"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 45
+    strategy:
+      matrix:
+        shard: [0, 1]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: pytest -v -s models/test_initialization.py -k 'not test_can_initialize_small_subset' --num-shards=2 --shard-id=${{ matrix.shard }}
+
+  basic-other:
+    name: "Basic Models (Other)"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: pytest -v -s models/test_terratorch.py models/test_transformers.py models/test_registry.py
+
+  basic-other-cpu:
+    name: "Basic Models (Other CPU)"
+    runs-on: [self-hosted, Linux, X64]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --shm-size=10g
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: pytest -v -s models/test_utils.py models/test_vision.py
+
+  # --- Models Distributed ---
+  models-dist-2gpu:
+    name: "Distributed Model Tests (2 GPUs)"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: |
+          TARGET_TEST_SUITE=L4 pytest basic_correctness/ -v -s -m 'distributed(num_gpus=2)'
+          CUDA_VISIBLE_DEVICES=0,1 pytest -v -s model_executor/model_loader/test_sharded_state_loader.py
+          pytest models/test_transformers.py -v -s -m 'distributed(num_gpus=2)'
+          pytest models/language -v -s -m 'distributed(num_gpus=2)'
+          pytest models/multimodal -v -s -m 'distributed(num_gpus=2)' --ignore models/multimodal/generation/test_whisper.py
+          VLLM_WORKER_MULTIPROC_METHOD=spawn pytest models/multimodal/generation/test_whisper.py -v -s -m 'distributed(num_gpus=2)'

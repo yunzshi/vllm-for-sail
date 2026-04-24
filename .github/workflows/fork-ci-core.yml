@@ -1,0 +1,59 @@
+# ==============================================================================
+# Fork CI - Core Tests
+# ==============================================================================
+# Test areas: attention, basic_correctness, cuda, engine, model_executor
+# Source: .buildkite/test_areas/{attention,basic_correctness,cuda,engine,model_executor}.yaml
+# ==============================================================================
+
+name: "Fork CI - Core"
+
+on:
+  workflow_call:
+
+jobs:
+  # [TEMPORARY] Only fast A100 jobs for initial validation
+  # Other jobs commented out below
+
+  # --- CUDA ---
+  cuda-platform:
+    name: "Platform Tests (CUDA)"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: |
+          pytest -v -s cuda/test_cuda_context.py
+          pytest -v -s cuda/test_platform_no_cuda_init.py
+
+  # --- Engine ---
+  engine:
+    name: "Engine"
+    runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all --shm-size=10g
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements/dev.txt
+          pip install -e tests/vllm_test_utils
+      - name: Run tests
+        working-directory: tests
+        run: pytest -v -s engine test_sequence.py test_config.py test_logger.py test_vllm_port.py
+
+  # [TEMPORARY] Remaining jobs disabled for initial validation
+  # Uncomment all jobs below after validation passes:
+  #
+  # attention-h100, attention-b200, basic-correctness, cudagraph,
+  # v1-engine-1gpu, v1-e2e-2gpu, v1-e2e-4gpu, model-executor
