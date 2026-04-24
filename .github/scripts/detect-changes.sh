@@ -70,6 +70,8 @@ RUN_ALL_PATTERNS=(
   "setup.py"
   "csrc/"
   "cmake/"
+  ".github/workflows/fork-ci"
+  ".github/scripts/detect-changes.sh"
 )
 
 RUN_ALL_EXCLUDE=(
