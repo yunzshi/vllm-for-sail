@@ -55,6 +55,9 @@ jobs:
       run_functional: ${{ steps.detect.outputs.run_functional }}
       run_misc: ${{ steps.detect.outputs.run_misc }}
     steps:
+      - name: Fix workspace permissions
+        run: docker run --rm -v "$GITHUB_WORKSPACE":"$GITHUB_WORKSPACE" alpine chown -R $(id -u):$(id -g) "$GITHUB_WORKSPACE" || true
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
