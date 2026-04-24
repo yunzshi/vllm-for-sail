@@ -1,3 +1,5 @@
 self-hosted-runner:
   labels:
     - A100
+    - H100
+    - B200
