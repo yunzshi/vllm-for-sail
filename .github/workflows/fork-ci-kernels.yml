@@ -118,6 +118,7 @@ jobs:
         run: pytest -v -s kernels/mamba
 
   kernels-deepgemm-h100:
+    if: false  # Requires H100
     name: "Kernels DeepGEMM (H100)"
     runs-on: [self-hosted, Linux, X64, H100]
     container:
@@ -141,6 +142,7 @@ jobs:
           pytest -v -s kernels/attention/test_deepgemm_attention.py
 
   kernels-b200:
+    if: false  # Requires B200
     name: "Kernels (B200)"
     runs-on: [self-hosted, Linux, X64, B200]
     container:
@@ -183,6 +185,7 @@ jobs:
           pytest -v -s tests/models/quantization/test_nvfp4.py
 
   kernels-helion-h100:
+    if: false  # Requires H100
     name: "Kernels Helion (H100)"
     runs-on: [self-hosted, Linux, X64, H100]
     container:
@@ -204,6 +207,7 @@ jobs:
           pytest -v -s kernels/helion/
 
   kernels-fp8-moe-1h100:
+    if: false  # Requires H100
     name: "Kernels FP8 MoE (1 H100)"
     runs-on: [self-hosted, Linux, X64, H100]
     container:
@@ -231,6 +235,7 @@ jobs:
           pytest -v -s kernels/moe/test_triton_moe_ptpc_fp8.py
 
   kernels-fp8-moe-2h100:
+    if: false  # Requires H100
     name: "Kernels FP8 MoE (2 H100s)"
     runs-on: [self-hosted, Linux, X64, H100]
     container:
@@ -252,6 +257,7 @@ jobs:
           pytest -v -s kernels/moe/test_deepep_moe.py
 
   kernels-fp4-moe-b200:
+    if: false  # Requires B200
     name: "Kernels FP4 MoE (B200)"
     runs-on: [self-hosted, Linux, X64, B200]
     container:

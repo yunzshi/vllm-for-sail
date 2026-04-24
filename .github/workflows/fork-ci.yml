@@ -75,52 +75,50 @@ jobs:
   # ============================================================================
   # Stage 2: Conditionally run sub-workflows
   # ============================================================================
-  # [TEMPORARY] Only run core for initial validation
   core:
     needs: detect-changes
-    if: true  # Force run for validation
+    if: needs.detect-changes.outputs.run_core == 'true'
     uses: ./.github/workflows/fork-ci-core.yml
     secrets: inherit
 
-  # [TEMPORARY] Disabled for initial validation - uncomment after verified
-  # kernels:
-  #   needs: detect-changes
-  #   if: needs.detect-changes.outputs.run_kernels == 'true'
-  #   uses: ./.github/workflows/fork-ci-kernels.yml
-  #   secrets: inherit
-  #
-  # compile:
-  #   needs: detect-changes
-  #   if: needs.detect-changes.outputs.run_compile == 'true'
-  #   uses: ./.github/workflows/fork-ci-compile.yml
-  #   secrets: inherit
-  #
-  # distributed:
-  #   needs: detect-changes
-  #   if: needs.detect-changes.outputs.run_distributed == 'true'
-  #   uses: ./.github/workflows/fork-ci-distributed.yml
-  #   secrets: inherit
-  #
-  # entrypoints:
-  #   needs: detect-changes
-  #   if: needs.detect-changes.outputs.run_entrypoints == 'true'
-  #   uses: ./.github/workflows/fork-ci-entrypoints.yml
-  #   secrets: inherit
-  #
-  # models:
-  #   needs: detect-changes
-  #   if: needs.detect-changes.outputs.run_models == 'true'
-  #   uses: ./.github/workflows/fork-ci-models.yml
-  #   secrets: inherit
-  #
-  # functional:
-  #   needs: detect-changes
-  #   if: needs.detect-changes.outputs.run_functional == 'true'
-  #   uses: ./.github/workflows/fork-ci-functional.yml
-  #   secrets: inherit
-  #
-  # misc:
-  #   needs: detect-changes
-  #   if: needs.detect-changes.outputs.run_misc == 'true'
-  #   uses: ./.github/workflows/fork-ci-misc.yml
-  #   secrets: inherit
+  kernels:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.run_kernels == 'true'
+    uses: ./.github/workflows/fork-ci-kernels.yml
+    secrets: inherit
+
+  compile:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.run_compile == 'true'
+    uses: ./.github/workflows/fork-ci-compile.yml
+    secrets: inherit
+
+  distributed:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.run_distributed == 'true'
+    uses: ./.github/workflows/fork-ci-distributed.yml
+    secrets: inherit
+
+  entrypoints:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.run_entrypoints == 'true'
+    uses: ./.github/workflows/fork-ci-entrypoints.yml
+    secrets: inherit
+
+  models:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.run_models == 'true'
+    uses: ./.github/workflows/fork-ci-models.yml
+    secrets: inherit
+
+  functional:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.run_functional == 'true'
+    uses: ./.github/workflows/fork-ci-functional.yml
+    secrets: inherit
+
+  misc:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.run_misc == 'true'
+    uses: ./.github/workflows/fork-ci-misc.yml
+    secrets: inherit

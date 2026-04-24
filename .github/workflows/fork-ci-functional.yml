@@ -93,6 +93,7 @@ jobs:
           VLLM_TEST_FORCE_LOAD_FORMAT=auto pytest -v -s quantization/ --ignore quantization/test_blackwell_moe.py
 
   quantized-moe-b200:
+    if: false  # Requires B200
     name: "Quantized MoE (B200)"
     runs-on: [self-hosted, Linux, X64, B200]
     container:

@@ -32,6 +32,7 @@ jobs:
           pytest -v -s tests/compile/correctness_e2e/test_sequence_parallel.py
 
   seq-parallel-2xh100:
+    if: false  # Requires H100
     name: "Sequence Parallel Correctness (2xH100)"
     runs-on: [self-hosted, Linux, X64, H100]
     container:
@@ -52,6 +53,7 @@ jobs:
           pytest -v -s tests/compile/correctness_e2e/test_sequence_parallel.py
 
   async-tp-2xh100:
+    if: false  # Requires H100
     name: "AsyncTP Correctness (2xH100)"
     runs-on: [self-hosted, Linux, X64, H100]
     container:
@@ -72,6 +74,7 @@ jobs:
           pytest -v -s tests/compile/correctness_e2e/test_async_tp.py
 
   async-tp-b200:
+    if: false  # Requires B200
     name: "AsyncTP Correctness (B200)"
     runs-on: [self-hosted, Linux, X64, B200]
     container:
@@ -92,6 +95,7 @@ jobs:
           pytest -v -s tests/compile/correctness_e2e/test_async_tp.py
 
   distributed-compile-2xh100:
+    if: false  # Requires H100
     name: "Distributed Compile Unit Tests (2xH100)"
     runs-on: [self-hosted, Linux, X64, H100]
     container:
@@ -112,6 +116,7 @@ jobs:
           pytest -s -v tests/compile/passes/distributed
 
   fusion-compile-b200:
+    if: false  # Requires B200
     name: "Fusion and Compile Unit Tests (B200)"
     runs-on: [self-hosted, Linux, X64, B200]
     container:
@@ -135,6 +140,7 @@ jobs:
           pytest -v -s tests/compile/fullgraph/test_full_graph.py::test_fp8_kv_scale_compile
 
   fusion-e2e-quick-h100:
+    if: false  # Requires H100
     name: "Fusion E2E Quick (H100)"
     runs-on: [self-hosted, Linux, X64, H100]
     container:
@@ -156,6 +162,7 @@ jobs:
           pytest -v -s tests/compile/fusions_e2e/test_tp1_quant.py -k "inductor_partition and not +rms_norm and +quant_fp8 and qwen3"
 
   fusion-e2e-config-sweep-h100:
+    if: false  # Requires H100
     name: "Fusion E2E Config Sweep (H100)"
     runs-on: [self-hosted, Linux, X64, H100]
     container:
@@ -176,6 +183,7 @@ jobs:
           pytest -v -s tests/compile/fusions_e2e/test_tp1_quant.py -k "llama-3"
 
   fusion-e2e-config-sweep-b200:
+    if: false  # Requires B200
     name: "Fusion E2E Config Sweep (B200)"
     runs-on: [self-hosted, Linux, X64, B200]
     container:
@@ -196,6 +204,7 @@ jobs:
           pytest -v -s tests/compile/fusions_e2e/test_tp1_quant.py -k "inductor_partition and (FLASHINFER and not +rms_norm and (not +quant_fp8 or +quant_fp8 and qwen3) or llama-3)"
 
   fusion-e2e-tp2-quick-h100:
+    if: false  # Requires H100
     name: "Fusion E2E TP2 Quick (H100)"
     runs-on: [self-hosted, Linux, X64, H100]
     container:
@@ -217,6 +226,7 @@ jobs:
           pytest -v -s tests/compile/fusions_e2e/test_tp2_async_tp.py -k "inductor_partition and not +rms_norm and not +quant_fp8"
 
   fusion-e2e-tp2-ar-rms-h100:
+    if: false  # Requires H100
     name: "Fusion E2E TP2 AR-RMS Config Sweep (H100)"
     runs-on: [self-hosted, Linux, X64, H100]
     container:
@@ -237,6 +247,7 @@ jobs:
           pytest -v -s tests/compile/fusions_e2e/test_tp2_ar_rms.py -k "llama-3"
 
   fusion-e2e-tp2-asynctp-h100:
+    if: false  # Requires H100
     name: "Fusion E2E TP2 AsyncTP Config Sweep (H100)"
     runs-on: [self-hosted, Linux, X64, H100]
     container:
@@ -257,6 +268,7 @@ jobs:
           pytest -v -s tests/compile/fusions_e2e/test_tp2_async_tp.py -k "llama-3"
 
   fusion-e2e-tp2-b200:
+    if: false  # Requires B200
     name: "Fusion E2E TP2 (B200)"
     runs-on: [self-hosted, Linux, X64, B200]
     container:

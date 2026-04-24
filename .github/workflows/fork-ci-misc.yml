@@ -225,6 +225,7 @@ jobs:
           pytest -v -s config
 
   batch-invariance-h100:
+    if: false  # Requires H100
     name: "Batch Invariance (H100)"
     runs-on: [self-hosted, Linux, X64, H100]
     container:
@@ -248,6 +249,7 @@ jobs:
           pytest -v -s v1/determinism/test_rms_norm_batch_invariant.py
 
   acceptance-length-h100:
+    if: false  # Requires H100
     name: "Acceptance Length Test (H100)"
     runs-on: [self-hosted, Linux, X64, H100]
     container:
@@ -289,6 +291,7 @@ jobs:
         run: pytest -v -s benchmarks/
 
   benchmarks-attention-b200:
+    if: false  # Requires B200
     name: "Attention Benchmarks Smoke (B200)"
     runs-on: [self-hosted, Linux, X64, B200]
     container:
@@ -327,6 +330,7 @@ jobs:
         run: pytest -s -v evals/gsm8k/test_gsm8k_correctness.py --config-list-file=configs/models-small.txt
 
   lm-eval-large-h100:
+    if: false  # Requires H100
     name: "LM Eval Large Models (4xH100)"
     runs-on: [self-hosted, Linux, X64, H100]
     container:
@@ -348,6 +352,7 @@ jobs:
           pytest -s -v test_lm_eval_correctness.py --config-list-file=configs/models-large-hopper.txt --tp-size=4
 
   lm-eval-small-b200:
+    if: false  # Requires B200
     name: "LM Eval Small Models (B200)"
     runs-on: [self-hosted, Linux, X64, B200]
     container:
@@ -367,6 +372,7 @@ jobs:
         run: pytest -s -v evals/gsm8k/test_gsm8k_correctness.py --config-list-file=configs/models-blackwell.txt
 
   gpqa-eval-h100:
+    if: false  # Requires H100
     name: "GPQA Eval (GPT-OSS) (2xH100)"
     runs-on: [self-hosted, Linux, X64, H100]
     container:
@@ -388,6 +394,7 @@ jobs:
           pytest -s -v evals/gpt_oss/test_gpqa_correctness.py --config-list-file=configs/models-h100.txt
 
   gpqa-eval-b200:
+    if: false  # Requires B200
     name: "GPQA Eval (GPT-OSS) (2xB200)"
     runs-on: [self-hosted, Linux, X64, B200]
     container:
@@ -410,6 +417,7 @@ jobs:
 
   # --- E2E Integration ---
   e2e-deepseek-v2-lite-h100:
+    if: false  # Requires H100
     name: "DeepSeek V2-Lite Accuracy (4xH100)"
     runs-on: [self-hosted, Linux, X64, H100]
     container:
@@ -428,6 +436,7 @@ jobs:
         run: bash .buildkite/scripts/scheduled_integration_test/deepseek_v2_lite_ep_eplb.sh 0.25 200 8010
 
   e2e-qwen30b-h100:
+    if: false  # Requires H100
     name: "Qwen3-30B-A3B Accuracy (4xH100)"
     runs-on: [self-hosted, Linux, X64, H100]
     container:
@@ -446,6 +455,7 @@ jobs:
         run: bash .buildkite/scripts/scheduled_integration_test/qwen30b_a3b_fp8_block_ep_eplb.sh 0.8 200 8020
 
   e2e-qwen30b-b200:
+    if: false  # Requires B200
     name: "Qwen3-30B-A3B Accuracy (2xB200)"
     runs-on: [self-hosted, Linux, X64, B200]
     container:
@@ -464,6 +474,7 @@ jobs:
         run: bash .buildkite/scripts/scheduled_integration_test/qwen30b_a3b_fp8_block_ep_eplb.sh 0.8 200 8020 2 1
 
   e2e-deepseek-prefetch-h100:
+    if: false  # Requires H100
     name: "DeepSeek V2-Lite Prefetch Offload (H100)"
     runs-on: [self-hosted, Linux, X64, H100]
     container:

@@ -112,6 +112,7 @@ jobs:
           VLLM_ALLOW_INSECURE_SERIALIZATION=1 python3 rlhf_ipc.py
 
   dist-8gpu-h100:
+    if: false  # Requires H100
     name: "Distributed (8 GPUs)(H100)"
     runs-on: [self-hosted, Linux, X64, H100]
     container:
@@ -156,6 +157,7 @@ jobs:
           pytest -v -s -x lora/test_mixtral.py
 
   dist-2gpu-h100:
+    if: false  # Requires H100
     name: "Distributed (2 GPUs)(H100)"
     runs-on: [self-hosted, Linux, X64, H100]
     container:
@@ -177,6 +179,7 @@ jobs:
           pytest -v -s tests/v1/distributed/test_dbo.py
 
   dist-2gpu-b200:
+    if: false  # Requires B200
     name: "Distributed (2 GPUs)(B200)"
     runs-on: [self-hosted, Linux, X64, B200]
     container:
@@ -349,6 +352,7 @@ jobs:
           pytest -v -s distributed/test_eplb_spec_decode.py
 
   elastic-ep-b200:
+    if: false  # Requires B200
     name: "Elastic EP Scaling (B200, 4 GPUs)"
     runs-on: [self-hosted, Linux, X64, B200]
     container:
