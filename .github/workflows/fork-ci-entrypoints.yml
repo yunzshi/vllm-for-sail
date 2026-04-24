@@ -19,6 +19,8 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 10
     steps:
+      - name: Install git
+        run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
@@ -38,6 +40,8 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 40
     steps:
+      - name: Install git
+        run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
@@ -59,6 +63,8 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 130
     steps:
+      - name: Install git
+        run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
@@ -79,6 +85,8 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 130
     steps:
+      - name: Install git
+        run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
@@ -100,6 +108,8 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 50
     steps:
+      - name: Install git
+        run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
@@ -119,6 +129,8 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 50
     steps:
+      - name: Install git
+        run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
@@ -136,6 +148,8 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 50
     steps:
+      - name: Install git
+        run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
@@ -153,6 +167,8 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 30
     steps:
+      - name: Install git
+        run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |

@@ -20,6 +20,8 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 60
     steps:
+      - name: Install git
+        run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
@@ -53,6 +55,8 @@ jobs:
       options: --shm-size=10g
     timeout-minutes: 30
     steps:
+      - name: Install git
+        run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
@@ -75,6 +79,8 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 20
     steps:
+      - name: Install git
+        run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
@@ -94,6 +100,8 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 45
     steps:
+      - name: Install git
+        run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
@@ -128,6 +136,8 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 20
     steps:
+      - name: Install git
+        run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
@@ -151,6 +161,8 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 20
     steps:
+      - name: Install git
+        run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
@@ -168,6 +180,8 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 50
     steps:
+      - name: Install git
+        run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
@@ -188,6 +202,8 @@ jobs:
       options: --shm-size=10g
     timeout-minutes: 30
     steps:
+      - name: Install git
+        run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
@@ -216,6 +232,8 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 25
     steps:
+      - name: Install git
+        run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
@@ -237,6 +255,8 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 25
     steps:
+      - name: Install git
+        run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
@@ -257,6 +277,8 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 20
     steps:
+      - name: Install git
+        run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
@@ -274,6 +296,8 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 10
     steps:
+      - name: Install git
+        run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
@@ -291,6 +315,8 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 75
     steps:
+      - name: Install git
+        run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
@@ -308,6 +334,8 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 60
     steps:
+      - name: Install git
+        run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
@@ -327,6 +355,8 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 120
     steps:
+      - name: Install git
+        run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
@@ -344,6 +374,8 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 120
     steps:
+      - name: Install git
+        run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
@@ -363,6 +395,8 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 120
     steps:
+      - name: Install git
+        run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
@@ -383,6 +417,8 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 60
     steps:
+      - name: Install git
+        run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
@@ -399,6 +435,8 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 60
     steps:
+      - name: Install git
+        run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
@@ -415,6 +453,8 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 60
     steps:
+      - name: Install git
+        run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
@@ -431,6 +471,8 @@ jobs:
       options: --gpus all --shm-size=10g
     timeout-minutes: 60
     steps:
+      - name: Install git
+        run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
