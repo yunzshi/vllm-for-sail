@@ -39,7 +39,7 @@ jobs:
           git checkout --force FETCH_HEAD
       - name: Install test dependencies
         run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: tests
@@ -78,7 +78,7 @@ jobs:
           git checkout --force FETCH_HEAD
       - name: Install test dependencies
         run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: tests
@@ -116,7 +116,7 @@ jobs:
           git checkout --force FETCH_HEAD
       - name: Install test dependencies
         run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: tests
@@ -150,7 +150,7 @@ jobs:
           git checkout --force FETCH_HEAD
       - name: Install test dependencies
         run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
       - name: Run tests
         run: pytest -s -v tests/quantization/test_blackwell_moe.py
@@ -179,7 +179,7 @@ jobs:
           git checkout --force FETCH_HEAD
       - name: Install test dependencies
         run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: tests
@@ -210,7 +210,7 @@ jobs:
           git checkout --force FETCH_HEAD
       - name: Install test dependencies
         run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: tests
@@ -243,7 +243,7 @@ jobs:
           git checkout --force FETCH_HEAD
       - name: Install test dependencies
         run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: tests
@@ -273,7 +273,7 @@ jobs:
           git checkout --force FETCH_HEAD
       - name: Install test dependencies
         run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: tests
@@ -303,7 +303,7 @@ jobs:
           git checkout --force FETCH_HEAD
       - name: Install test dependencies
         run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: tests
@@ -333,7 +333,7 @@ jobs:
           git checkout --force FETCH_HEAD
       - name: Install test dependencies
         run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: tests
@@ -364,7 +364,7 @@ jobs:
           git checkout --force FETCH_HEAD
       - name: Install test dependencies
         run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: tests
@@ -395,7 +395,7 @@ jobs:
           git checkout --force FETCH_HEAD
       - name: Install test dependencies
         run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: tests
@@ -446,7 +446,7 @@ jobs:
           git checkout --force FETCH_HEAD
       - name: Install test dependencies
         run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
       - name: Run tests
         run: bash .buildkite/scripts/check-ray-compatibility.sh
@@ -476,7 +476,7 @@ jobs:
           git checkout --force FETCH_HEAD
       - name: Install test dependencies
         run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: tests
