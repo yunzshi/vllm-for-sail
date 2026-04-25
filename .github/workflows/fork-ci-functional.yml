@@ -9,6 +9,10 @@ name: "Fork CI - Functional"
 
 on:
   workflow_call:
+    inputs:
+      docker_image:
+        type: string
+        required: true
 
 jobs:
   # --- LoRA ---
@@ -16,34 +20,15 @@ jobs:
     name: "LoRA (${{ matrix.shard }})"
     runs-on: [self-hosted, Linux, X64, A100]
     container:
-      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      image: ${{ inputs.docker_image }}
       options: --gpus all --shm-size=10g
     timeout-minutes: 30
     strategy:
       matrix:
         shard: [0, 1, 2, 3]
     steps:
-      - name: Clean workspace
-        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
-
-      - name: Install git
-        run: apt-get update && apt-get install -y git
-      - name: Checkout
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git init
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
-          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git fetch --depth=1 origin "${GITHUB_REF}"
-          git checkout --force FETCH_HEAD
-      - name: Install test dependencies
-        run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
-          pip install -e tests/vllm_test_utils
-          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
-        working-directory: tests
+        working-directory: /vllm-workspace/tests
         run: >
           pytest -v -s lora
           --shard-id=${{ matrix.shard }} --num-shards=4
@@ -59,31 +44,12 @@ jobs:
     name: "LoRA TP (4 GPUs)"
     runs-on: [self-hosted, Linux, X64, A100]
     container:
-      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      image: ${{ inputs.docker_image }}
       options: --gpus all --shm-size=10g
     timeout-minutes: 30
     steps:
-      - name: Clean workspace
-        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
-
-      - name: Install git
-        run: apt-get update && apt-get install -y git
-      - name: Checkout
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git init
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
-          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git fetch --depth=1 origin "${GITHUB_REF}"
-          git checkout --force FETCH_HEAD
-      - name: Install test dependencies
-        run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
-          pip install -e tests/vllm_test_utils
-          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
-        working-directory: tests
+        working-directory: /vllm-workspace/tests
         run: |
           export VLLM_WORKER_MULTIPROC_METHOD=spawn
           export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
@@ -98,31 +64,12 @@ jobs:
     name: "Quantization"
     runs-on: [self-hosted, Linux, X64, A100]
     container:
-      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      image: ${{ inputs.docker_image }}
       options: --gpus all --shm-size=10g
     timeout-minutes: 90
     steps:
-      - name: Clean workspace
-        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
-
-      - name: Install git
-        run: apt-get update && apt-get install -y git
-      - name: Checkout
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git init
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
-          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git fetch --depth=1 origin "${GITHUB_REF}"
-          git checkout --force FETCH_HEAD
-      - name: Install test dependencies
-        run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
-          pip install -e tests/vllm_test_utils
-          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
-        working-directory: tests
+        working-directory: /vllm-workspace/tests
         run: |
           uv pip install --system torchao==0.14.1 --index-url https://download.pytorch.org/whl/cu129
           uv pip install --system conch-triton-kernels
@@ -133,61 +80,24 @@ jobs:
     name: "Quantized MoE (B200)"
     runs-on: [self-hosted, Linux, X64, B200]
     container:
-      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      image: ${{ inputs.docker_image }}
       options: --gpus all --shm-size=10g
     timeout-minutes: 60
     steps:
-      - name: Clean workspace
-        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
-
-      - name: Install git
-        run: apt-get update && apt-get install -y git
-      - name: Checkout
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git init
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
-          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git fetch --depth=1 origin "${GITHUB_REF}"
-          git checkout --force FETCH_HEAD
-      - name: Install test dependencies
-        run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
-          pip install -e tests/vllm_test_utils
-          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
+        working-directory: /vllm-workspace
         run: pytest -s -v tests/quantization/test_blackwell_moe.py
 
   quantized-models:
     name: "Quantized Models"
     runs-on: [self-hosted, Linux, X64, A100]
     container:
-      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      image: ${{ inputs.docker_image }}
       options: --gpus all --shm-size=10g
     timeout-minutes: 60
     steps:
-      - name: Clean workspace
-        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
-
-      - name: Install git
-        run: apt-get update && apt-get install -y git
-      - name: Checkout
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git init
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
-          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git fetch --depth=1 origin "${GITHUB_REF}"
-          git checkout --force FETCH_HEAD
-      - name: Install test dependencies
-        run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
-          pip install -e tests/vllm_test_utils
-          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
-        working-directory: tests
+        working-directory: /vllm-workspace/tests
         run: pytest -v -s models/quantization
 
   # --- Samplers ---
@@ -195,31 +105,12 @@ jobs:
     name: "Samplers"
     runs-on: [self-hosted, Linux, X64, A100]
     container:
-      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      image: ${{ inputs.docker_image }}
       options: --gpus all --shm-size=10g
     timeout-minutes: 75
     steps:
-      - name: Clean workspace
-        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
-
-      - name: Install git
-        run: apt-get update && apt-get install -y git
-      - name: Checkout
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git init
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
-          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git fetch --depth=1 origin "${GITHUB_REF}"
-          git checkout --force FETCH_HEAD
-      - name: Install test dependencies
-        run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
-          pip install -e tests/vllm_test_utils
-          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
-        working-directory: tests
+        working-directory: /vllm-workspace/tests
         run: |
           pytest -v -s samplers
           VLLM_USE_FLASHINFER_SAMPLER=1 pytest -v -s samplers
@@ -229,156 +120,61 @@ jobs:
     name: "PyTorch Compilation Unit Tests"
     runs-on: [self-hosted, Linux, X64, A100]
     container:
-      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      image: ${{ inputs.docker_image }}
       options: --gpus all --shm-size=10g
     timeout-minutes: 10
     steps:
-      - name: Clean workspace
-        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
-
-      - name: Install git
-        run: apt-get update && apt-get install -y git
-      - name: Checkout
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git init
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
-          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git fetch --depth=1 origin "${GITHUB_REF}"
-          git checkout --force FETCH_HEAD
-      - name: Install test dependencies
-        run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
-          pip install -e tests/vllm_test_utils
-          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
-        working-directory: tests
+        working-directory: /vllm-workspace/tests
         run: "find compile/ -maxdepth 1 -name 'test_*.py' -print0 | xargs -0 -n1 -I{} pytest -s -v '{}'"
 
   pytorch-passes:
     name: "PyTorch Compilation Passes Unit Tests"
     runs-on: [self-hosted, Linux, X64, A100]
     container:
-      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      image: ${{ inputs.docker_image }}
       options: --gpus all --shm-size=10g
     timeout-minutes: 20
     steps:
-      - name: Clean workspace
-        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
-
-      - name: Install git
-        run: apt-get update && apt-get install -y git
-      - name: Checkout
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git init
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
-          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git fetch --depth=1 origin "${GITHUB_REF}"
-          git checkout --force FETCH_HEAD
-      - name: Install test dependencies
-        run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
-          pip install -e tests/vllm_test_utils
-          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
-        working-directory: tests
+        working-directory: /vllm-workspace/tests
         run: pytest -s -v compile/passes --ignore compile/passes/distributed
 
   pytorch-fullgraph-smoke:
     name: "PyTorch Fullgraph Smoke Test"
     runs-on: [self-hosted, Linux, X64, A100]
     container:
-      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      image: ${{ inputs.docker_image }}
       options: --gpus all --shm-size=10g
     timeout-minutes: 35
     steps:
-      - name: Clean workspace
-        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
-
-      - name: Install git
-        run: apt-get update && apt-get install -y git
-      - name: Checkout
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git init
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
-          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git fetch --depth=1 origin "${GITHUB_REF}"
-          git checkout --force FETCH_HEAD
-      - name: Install test dependencies
-        run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
-          pip install -e tests/vllm_test_utils
-          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
-        working-directory: tests
+        working-directory: /vllm-workspace/tests
         run: "find compile/fullgraph/ -name 'test_*.py' -not -name 'test_full_graph.py' -exec pytest -s -v {} \\;"
 
   pytorch-fullgraph:
     name: "PyTorch Fullgraph"
     runs-on: [self-hosted, Linux, X64, A100]
     container:
-      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      image: ${{ inputs.docker_image }}
       options: --gpus all --shm-size=10g
     timeout-minutes: 30
     steps:
-      - name: Clean workspace
-        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
-
-      - name: Install git
-        run: apt-get update && apt-get install -y git
-      - name: Checkout
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git init
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
-          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git fetch --depth=1 origin "${GITHUB_REF}"
-          git checkout --force FETCH_HEAD
-      - name: Install test dependencies
-        run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
-          pip install -e tests/vllm_test_utils
-          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
-        working-directory: tests
+        working-directory: /vllm-workspace/tests
         run: pytest -v -s compile/fullgraph/test_full_graph.py -k 'not test_fp8_kv_scale_compile'
 
   pytorch-nightly-check:
     name: "PyTorch Nightly Dependency Check"
     runs-on: [self-hosted, Linux, X64, A100]
     container:
-      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      image: ${{ inputs.docker_image }}
       options: --gpus all --shm-size=10g
     timeout-minutes: 10
     continue-on-error: true
     steps:
-      - name: Clean workspace
-        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
-
-      - name: Install git
-        run: apt-get update && apt-get install -y git
-      - name: Checkout
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git init
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
-          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git fetch --depth=1 origin "${GITHUB_REF}"
-          git checkout --force FETCH_HEAD
-      - name: Install test dependencies
-        run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
-          pip install -e tests/vllm_test_utils
-          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
-        working-directory: tests
+        working-directory: /vllm-workspace/tests
         run: bash standalone_tests/pytorch_nightly_dependency.sh
 
   # --- Plugins ---
@@ -386,31 +182,12 @@ jobs:
     name: "Plugin Tests (2 GPUs)"
     runs-on: [self-hosted, Linux, X64, A100]
     container:
-      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      image: ${{ inputs.docker_image }}
       options: --gpus all --shm-size=10g
     timeout-minutes: 60
     steps:
-      - name: Clean workspace
-        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
-
-      - name: Install git
-        run: apt-get update && apt-get install -y git
-      - name: Checkout
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git init
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
-          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git fetch --depth=1 origin "${GITHUB_REF}"
-          git checkout --force FETCH_HEAD
-      - name: Install test dependencies
-        run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
-          pip install -e tests/vllm_test_utils
-          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
-        working-directory: tests
+        working-directory: /vllm-workspace/tests
         run: |
           pip install -e ./plugins/vllm_add_dummy_platform
           pytest -v -s plugins_tests/test_platform_plugins.py
@@ -437,31 +214,13 @@ jobs:
     name: "Ray Dependency Compatibility Check"
     runs-on: [self-hosted, Linux, X64, A100]
     container:
-      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      image: ${{ inputs.docker_image }}
       options: --gpus all --shm-size=10g
     timeout-minutes: 10
     continue-on-error: true
     steps:
-      - name: Clean workspace
-        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
-
-      - name: Install git
-        run: apt-get update && apt-get install -y git
-      - name: Checkout
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git init
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
-          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git fetch --depth=1 origin "${GITHUB_REF}"
-          git checkout --force FETCH_HEAD
-      - name: Install test dependencies
-        run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
-          pip install -e tests/vllm_test_utils
-          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
+        working-directory: /vllm-workspace
         run: bash .buildkite/scripts/check-ray-compatibility.sh
 
   # --- Weight Loading ---
@@ -469,29 +228,10 @@ jobs:
     name: "Weight Loading (2 GPUs)"
     runs-on: [self-hosted, Linux, X64, A100]
     container:
-      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      image: ${{ inputs.docker_image }}
       options: --gpus all --shm-size=10g
     timeout-minutes: 45
     steps:
-      - name: Clean workspace
-        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
-
-      - name: Install git
-        run: apt-get update && apt-get install -y git
-      - name: Checkout
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git init
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
-          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git fetch --depth=1 origin "${GITHUB_REF}"
-          git checkout --force FETCH_HEAD
-      - name: Install test dependencies
-        run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
-          pip install -e tests/vllm_test_utils
-          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
-        working-directory: tests
+        working-directory: /vllm-workspace/tests
         run: bash weight_loading/run_model_weight_loading_test.sh -c weight_loading/models.txt

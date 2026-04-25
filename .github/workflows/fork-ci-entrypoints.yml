@@ -9,37 +9,22 @@ name: "Fork CI - Entrypoints"
 
 on:
   workflow_call:
+    inputs:
+      docker_image:
+        type: string
+        required: true
 
 jobs:
   entrypoints-unit:
     name: "Entrypoints Unit Tests"
     runs-on: [self-hosted, Linux, X64, A100]
     container:
-      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      image: ${{ inputs.docker_image }}
       options: --gpus all --shm-size=10g
     timeout-minutes: 10
     steps:
-      - name: Clean workspace
-        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
-
-      - name: Install git
-        run: apt-get update && apt-get install -y git
-      - name: Checkout
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git init
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
-          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git fetch --depth=1 origin "${GITHUB_REF}"
-          git checkout --force FETCH_HEAD
-      - name: Install test dependencies
-        run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
-          pip install -e tests/vllm_test_utils
-          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
-        working-directory: tests
+        working-directory: /vllm-workspace/tests
         run: |
           pytest -v -s entrypoints/openai/tool_parsers
           pytest -v -s entrypoints/ --ignore=entrypoints/llm --ignore=entrypoints/rpc --ignore=entrypoints/sleep --ignore=entrypoints/instrumentator --ignore=entrypoints/openai --ignore=entrypoints/offline_mode --ignore=entrypoints/test_chat_utils.py --ignore=entrypoints/pooling
@@ -48,31 +33,12 @@ jobs:
     name: "Entrypoints Integration (LLM)"
     runs-on: [self-hosted, Linux, X64, A100]
     container:
-      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      image: ${{ inputs.docker_image }}
       options: --gpus all --shm-size=10g
     timeout-minutes: 40
     steps:
-      - name: Clean workspace
-        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
-
-      - name: Install git
-        run: apt-get update && apt-get install -y git
-      - name: Checkout
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git init
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
-          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git fetch --depth=1 origin "${GITHUB_REF}"
-          git checkout --force FETCH_HEAD
-      - name: Install test dependencies
-        run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
-          pip install -e tests/vllm_test_utils
-          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
-        working-directory: tests
+        working-directory: /vllm-workspace/tests
         run: |
           export VLLM_WORKER_MULTIPROC_METHOD=spawn
           pytest -v -s entrypoints/llm --ignore=entrypoints/llm/test_generate.py --ignore=entrypoints/llm/test_collective_rpc.py
@@ -83,31 +49,12 @@ jobs:
     name: "Entrypoints Integration (API Server 1)"
     runs-on: [self-hosted, Linux, X64, A100]
     container:
-      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      image: ${{ inputs.docker_image }}
       options: --gpus all --shm-size=10g
     timeout-minutes: 130
     steps:
-      - name: Clean workspace
-        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
-
-      - name: Install git
-        run: apt-get update && apt-get install -y git
-      - name: Checkout
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git init
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
-          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git fetch --depth=1 origin "${GITHUB_REF}"
-          git checkout --force FETCH_HEAD
-      - name: Install test dependencies
-        run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
-          pip install -e tests/vllm_test_utils
-          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
-        working-directory: tests
+        working-directory: /vllm-workspace/tests
         run: |
           export VLLM_WORKER_MULTIPROC_METHOD=spawn
           pytest -v -s entrypoints/openai --ignore=entrypoints/openai/test_chat_with_tool_reasoning.py --ignore=entrypoints/openai/test_oot_registration.py --ignore=entrypoints/openai/test_tensorizer_entrypoint.py --ignore=entrypoints/openai/correctness/ --ignore=entrypoints/openai/tool_parsers/ --ignore=entrypoints/openai/responses
@@ -117,66 +64,28 @@ jobs:
     name: "Entrypoints Integration (API Server 2)"
     runs-on: [self-hosted, Linux, X64, A100]
     container:
-      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      image: ${{ inputs.docker_image }}
       options: --gpus all --shm-size=10g
     timeout-minutes: 130
     steps:
-      - name: Clean workspace
-        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
-
-      - name: Install git
-        run: apt-get update && apt-get install -y git
-      - name: Checkout
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git init
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
-          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git fetch --depth=1 origin "${GITHUB_REF}"
-          git checkout --force FETCH_HEAD
-      - name: Install test dependencies
-        run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
-          pip install -e tests/vllm_test_utils
-          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
-        working-directory: tests
+        working-directory: /vllm-workspace/tests
         run: |
           export VLLM_WORKER_MULTIPROC_METHOD=spawn
           pytest -v -s entrypoints/instrumentator
-          PYTHONPATH=$GITHUB_WORKSPACE pytest -v -s entrypoints/rpc
+          PYTHONPATH=/vllm-workspace pytest -v -s entrypoints/rpc
           pytest -v -s tool_use
 
   entrypoints-pooling:
     name: "Entrypoints Integration (Pooling)"
     runs-on: [self-hosted, Linux, X64, A100]
     container:
-      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      image: ${{ inputs.docker_image }}
       options: --gpus all --shm-size=10g
     timeout-minutes: 50
     steps:
-      - name: Clean workspace
-        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
-
-      - name: Install git
-        run: apt-get update && apt-get install -y git
-      - name: Checkout
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git init
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
-          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git fetch --depth=1 origin "${GITHUB_REF}"
-          git checkout --force FETCH_HEAD
-      - name: Install test dependencies
-        run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
-          pip install -e tests/vllm_test_utils
-          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
-        working-directory: tests
+        working-directory: /vllm-workspace/tests
         run: |
           export VLLM_WORKER_MULTIPROC_METHOD=spawn
           pytest -v -s entrypoints/pooling
@@ -185,91 +94,34 @@ jobs:
     name: "Entrypoints Integration (Responses API)"
     runs-on: [self-hosted, Linux, X64, A100]
     container:
-      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      image: ${{ inputs.docker_image }}
       options: --gpus all --shm-size=10g
     timeout-minutes: 50
     steps:
-      - name: Clean workspace
-        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
-
-      - name: Install git
-        run: apt-get update && apt-get install -y git
-      - name: Checkout
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git init
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
-          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git fetch --depth=1 origin "${GITHUB_REF}"
-          git checkout --force FETCH_HEAD
-      - name: Install test dependencies
-        run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
-          pip install -e tests/vllm_test_utils
-          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
-        working-directory: tests
+        working-directory: /vllm-workspace/tests
         run: pytest -v -s entrypoints/openai/responses
 
   entrypoints-v1:
     name: "Entrypoints V1"
     runs-on: [self-hosted, Linux, X64, A100]
     container:
-      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      image: ${{ inputs.docker_image }}
       options: --gpus all --shm-size=10g
     timeout-minutes: 50
     steps:
-      - name: Clean workspace
-        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
-
-      - name: Install git
-        run: apt-get update && apt-get install -y git
-      - name: Checkout
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git init
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
-          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git fetch --depth=1 origin "${GITHUB_REF}"
-          git checkout --force FETCH_HEAD
-      - name: Install test dependencies
-        run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
-          pip install -e tests/vllm_test_utils
-          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
-        working-directory: tests
+        working-directory: /vllm-workspace/tests
         run: pytest -v -s v1/entrypoints
 
   openai-correctness:
     name: "OpenAI API Correctness"
     runs-on: [self-hosted, Linux, X64, A100]
     container:
-      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      image: ${{ inputs.docker_image }}
       options: --gpus all --shm-size=10g
     timeout-minutes: 30
     steps:
-      - name: Clean workspace
-        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
-
-      - name: Install git
-        run: apt-get update && apt-get install -y git
-      - name: Checkout
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git init
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
-          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git fetch --depth=1 origin "${GITHUB_REF}"
-          git checkout --force FETCH_HEAD
-      - name: Install test dependencies
-        run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
-          pip install -e tests/vllm_test_utils
-          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
-        working-directory: tests
+        working-directory: /vllm-workspace/tests
         run: pytest -s entrypoints/openai/correctness/

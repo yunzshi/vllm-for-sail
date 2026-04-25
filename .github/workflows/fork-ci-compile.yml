@@ -9,36 +9,22 @@ name: "Fork CI - Compile"
 
 on:
   workflow_call:
+    inputs:
+      docker_image:
+        type: string
+        required: true
 
 jobs:
   seq-parallel-2gpu:
     name: "Sequence Parallel Correctness (2 GPUs)"
     runs-on: [self-hosted, Linux, X64, A100]
     container:
-      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      image: ${{ inputs.docker_image }}
       options: --gpus all --shm-size=10g
     timeout-minutes: 50
     steps:
-      - name: Clean workspace
-        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
-
-      - name: Install git
-        run: apt-get update && apt-get install -y git
-      - name: Checkout
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git init
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
-          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git fetch --depth=1 origin "${GITHUB_REF}"
-          git checkout --force FETCH_HEAD
-      - name: Install test dependencies
-        run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
-          pip install -e tests/vllm_test_utils
-          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
+        working-directory: /vllm-workspace
         run: |
           export VLLM_TEST_CLEAN_GPU_MEMORY=1
           pytest -v -s tests/compile/correctness_e2e/test_sequence_parallel.py
@@ -48,30 +34,12 @@ jobs:
     name: "Sequence Parallel Correctness (2xH100)"
     runs-on: [self-hosted, Linux, X64, H100]
     container:
-      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      image: ${{ inputs.docker_image }}
       options: --gpus all --shm-size=10g
     timeout-minutes: 50
     steps:
-      - name: Clean workspace
-        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
-
-      - name: Install git
-        run: apt-get update && apt-get install -y git
-      - name: Checkout
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git init
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
-          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git fetch --depth=1 origin "${GITHUB_REF}"
-          git checkout --force FETCH_HEAD
-      - name: Install test dependencies
-        run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
-          pip install -e tests/vllm_test_utils
-          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
+        working-directory: /vllm-workspace
         run: |
           export VLLM_TEST_CLEAN_GPU_MEMORY=1
           pytest -v -s tests/compile/correctness_e2e/test_sequence_parallel.py
@@ -81,30 +49,12 @@ jobs:
     name: "AsyncTP Correctness (2xH100)"
     runs-on: [self-hosted, Linux, X64, H100]
     container:
-      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      image: ${{ inputs.docker_image }}
       options: --gpus all --shm-size=10g
     timeout-minutes: 50
     steps:
-      - name: Clean workspace
-        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
-
-      - name: Install git
-        run: apt-get update && apt-get install -y git
-      - name: Checkout
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git init
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
-          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git fetch --depth=1 origin "${GITHUB_REF}"
-          git checkout --force FETCH_HEAD
-      - name: Install test dependencies
-        run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
-          pip install -e tests/vllm_test_utils
-          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
+        working-directory: /vllm-workspace
         run: |
           export VLLM_TEST_CLEAN_GPU_MEMORY=1
           pytest -v -s tests/compile/correctness_e2e/test_async_tp.py
@@ -114,30 +64,12 @@ jobs:
     name: "AsyncTP Correctness (B200)"
     runs-on: [self-hosted, Linux, X64, B200]
     container:
-      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      image: ${{ inputs.docker_image }}
       options: --gpus all --shm-size=10g
     timeout-minutes: 50
     steps:
-      - name: Clean workspace
-        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
-
-      - name: Install git
-        run: apt-get update && apt-get install -y git
-      - name: Checkout
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git init
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
-          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git fetch --depth=1 origin "${GITHUB_REF}"
-          git checkout --force FETCH_HEAD
-      - name: Install test dependencies
-        run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
-          pip install -e tests/vllm_test_utils
-          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
+        working-directory: /vllm-workspace
         run: |
           export VLLM_TEST_CLEAN_GPU_MEMORY=1
           pytest -v -s tests/compile/correctness_e2e/test_async_tp.py
@@ -147,30 +79,12 @@ jobs:
     name: "Distributed Compile Unit Tests (2xH100)"
     runs-on: [self-hosted, Linux, X64, H100]
     container:
-      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      image: ${{ inputs.docker_image }}
       options: --gpus all --shm-size=10g
     timeout-minutes: 20
     steps:
-      - name: Clean workspace
-        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
-
-      - name: Install git
-        run: apt-get update && apt-get install -y git
-      - name: Checkout
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git init
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
-          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git fetch --depth=1 origin "${GITHUB_REF}"
-          git checkout --force FETCH_HEAD
-      - name: Install test dependencies
-        run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
-          pip install -e tests/vllm_test_utils
-          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
+        working-directory: /vllm-workspace
         run: |
           export VLLM_TEST_CLEAN_GPU_MEMORY=1
           pytest -s -v tests/compile/passes/distributed
@@ -180,30 +94,12 @@ jobs:
     name: "Fusion and Compile Unit Tests (B200)"
     runs-on: [self-hosted, Linux, X64, B200]
     container:
-      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      image: ${{ inputs.docker_image }}
       options: --gpus all --shm-size=10g
     timeout-minutes: 20
     steps:
-      - name: Clean workspace
-        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
-
-      - name: Install git
-        run: apt-get update && apt-get install -y git
-      - name: Checkout
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git init
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
-          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git fetch --depth=1 origin "${GITHUB_REF}"
-          git checkout --force FETCH_HEAD
-      - name: Install test dependencies
-        run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
-          pip install -e tests/vllm_test_utils
-          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
+        working-directory: /vllm-workspace
         run: |
           nvidia-smi
           pytest -v -s tests/compile/passes/test_fusion_attn.py -k FLASHINFER
@@ -216,30 +112,12 @@ jobs:
     name: "Fusion E2E Quick (H100)"
     runs-on: [self-hosted, Linux, X64, H100]
     container:
-      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      image: ${{ inputs.docker_image }}
       options: --gpus all --shm-size=10g
     timeout-minutes: 15
     steps:
-      - name: Clean workspace
-        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
-
-      - name: Install git
-        run: apt-get update && apt-get install -y git
-      - name: Checkout
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git init
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
-          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git fetch --depth=1 origin "${GITHUB_REF}"
-          git checkout --force FETCH_HEAD
-      - name: Install test dependencies
-        run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
-          pip install -e tests/vllm_test_utils
-          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
+        working-directory: /vllm-workspace
         run: |
           nvidia-smi
           pytest -v -s tests/compile/fusions_e2e/test_tp1_quant.py -k "inductor_partition and not +rms_norm and not +quant_fp8"
@@ -250,30 +128,12 @@ jobs:
     name: "Fusion E2E Config Sweep (H100)"
     runs-on: [self-hosted, Linux, X64, H100]
     container:
-      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      image: ${{ inputs.docker_image }}
       options: --gpus all --shm-size=10g
     timeout-minutes: 30
     steps:
-      - name: Clean workspace
-        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
-
-      - name: Install git
-        run: apt-get update && apt-get install -y git
-      - name: Checkout
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git init
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
-          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git fetch --depth=1 origin "${GITHUB_REF}"
-          git checkout --force FETCH_HEAD
-      - name: Install test dependencies
-        run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
-          pip install -e tests/vllm_test_utils
-          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
+        working-directory: /vllm-workspace
         run: |
           nvidia-smi
           pytest -v -s tests/compile/fusions_e2e/test_tp1_quant.py -k "llama-3"
@@ -283,30 +143,12 @@ jobs:
     name: "Fusion E2E Config Sweep (B200)"
     runs-on: [self-hosted, Linux, X64, B200]
     container:
-      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      image: ${{ inputs.docker_image }}
       options: --gpus all --shm-size=10g
     timeout-minutes: 30
     steps:
-      - name: Clean workspace
-        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
-
-      - name: Install git
-        run: apt-get update && apt-get install -y git
-      - name: Checkout
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git init
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
-          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git fetch --depth=1 origin "${GITHUB_REF}"
-          git checkout --force FETCH_HEAD
-      - name: Install test dependencies
-        run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
-          pip install -e tests/vllm_test_utils
-          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
+        working-directory: /vllm-workspace
         run: |
           nvidia-smi
           pytest -v -s tests/compile/fusions_e2e/test_tp1_quant.py -k "inductor_partition and (FLASHINFER and not +rms_norm and (not +quant_fp8 or +quant_fp8 and qwen3) or llama-3)"
@@ -316,30 +158,12 @@ jobs:
     name: "Fusion E2E TP2 Quick (H100)"
     runs-on: [self-hosted, Linux, X64, H100]
     container:
-      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      image: ${{ inputs.docker_image }}
       options: --gpus all --shm-size=10g
     timeout-minutes: 20
     steps:
-      - name: Clean workspace
-        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
-
-      - name: Install git
-        run: apt-get update && apt-get install -y git
-      - name: Checkout
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git init
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
-          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git fetch --depth=1 origin "${GITHUB_REF}"
-          git checkout --force FETCH_HEAD
-      - name: Install test dependencies
-        run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
-          pip install -e tests/vllm_test_utils
-          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
+        working-directory: /vllm-workspace
         run: |
           nvidia-smi
           pytest -v -s tests/compile/fusions_e2e/test_tp2_ar_rms.py -k "inductor_partition and not +rms_norm and not +quant_fp8"
@@ -350,30 +174,12 @@ jobs:
     name: "Fusion E2E TP2 AR-RMS Config Sweep (H100)"
     runs-on: [self-hosted, Linux, X64, H100]
     container:
-      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      image: ${{ inputs.docker_image }}
       options: --gpus all --shm-size=10g
     timeout-minutes: 40
     steps:
-      - name: Clean workspace
-        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
-
-      - name: Install git
-        run: apt-get update && apt-get install -y git
-      - name: Checkout
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git init
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
-          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git fetch --depth=1 origin "${GITHUB_REF}"
-          git checkout --force FETCH_HEAD
-      - name: Install test dependencies
-        run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
-          pip install -e tests/vllm_test_utils
-          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
+        working-directory: /vllm-workspace
         run: |
           nvidia-smi
           pytest -v -s tests/compile/fusions_e2e/test_tp2_ar_rms.py -k "llama-3"
@@ -383,30 +189,12 @@ jobs:
     name: "Fusion E2E TP2 AsyncTP Config Sweep (H100)"
     runs-on: [self-hosted, Linux, X64, H100]
     container:
-      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      image: ${{ inputs.docker_image }}
       options: --gpus all --shm-size=10g
     timeout-minutes: 40
     steps:
-      - name: Clean workspace
-        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
-
-      - name: Install git
-        run: apt-get update && apt-get install -y git
-      - name: Checkout
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git init
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
-          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git fetch --depth=1 origin "${GITHUB_REF}"
-          git checkout --force FETCH_HEAD
-      - name: Install test dependencies
-        run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
-          pip install -e tests/vllm_test_utils
-          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
+        working-directory: /vllm-workspace
         run: |
           nvidia-smi
           pytest -v -s tests/compile/fusions_e2e/test_tp2_async_tp.py -k "llama-3"
@@ -416,30 +204,12 @@ jobs:
     name: "Fusion E2E TP2 (B200)"
     runs-on: [self-hosted, Linux, X64, B200]
     container:
-      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      image: ${{ inputs.docker_image }}
       options: --gpus all --shm-size=10g
     timeout-minutes: 20
     steps:
-      - name: Clean workspace
-        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
-
-      - name: Install git
-        run: apt-get update && apt-get install -y git
-      - name: Checkout
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git init
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
-          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git fetch --depth=1 origin "${GITHUB_REF}"
-          git checkout --force FETCH_HEAD
-      - name: Install test dependencies
-        run: |
-          PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
-          pip install -e tests/vllm_test_utils
-          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
+        working-directory: /vllm-workspace
         run: |
           nvidia-smi
           pytest -v -s tests/compile/fusions_e2e/test_tp2_ar_rms.py -k "(FLASHINFER and inductor_partition and not +rms_norm and (not +quant_fp8 or +quant_fp8 and qwen3)) or Llama-3.1-8B-Instruct-FP4"

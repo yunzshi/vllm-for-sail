@@ -144,6 +144,7 @@ ENV VLLM_ENABLE_CUDA_COMPATIBILITY=0
 
 # Install PyTorch and core CUDA dependencies
 # This is ~2GB and rarely changes
+ARG UV_INDEX_URL
 ARG PYTORCH_CUDA_INDEX_BASE_URL
 
 WORKDIR /workspace
@@ -328,11 +329,15 @@ ARG DEEPGEMM_GIT_REF=477618cd51baffca09c4b0b87e97c03fe827ef03
 COPY tools/install_deepgemm.sh /tmp/install_deepgemm.sh
 RUN --mount=type=cache,target=/root/.cache/uv \
     mkdir -p /tmp/deepgemm/dist && \
-    VLLM_DOCKER_BUILD_CONTEXT=1 TORCH_CUDA_ARCH_LIST="9.0a 10.0a" /tmp/install_deepgemm.sh \
-        --cuda-version "${CUDA_VERSION}" \
-        ${DEEPGEMM_GIT_REF:+--ref "$DEEPGEMM_GIT_REF"} \
-        --wheel-dir /tmp/deepgemm/dist || \
-    echo "DeepGEMM build skipped (CUDA version requirement not met)"
+    if [ -n "${DEEPGEMM_GIT_REF}" ]; then \
+        VLLM_DOCKER_BUILD_CONTEXT=1 TORCH_CUDA_ARCH_LIST="9.0a 10.0a" /tmp/install_deepgemm.sh \
+            --cuda-version "${CUDA_VERSION}" \
+            --ref "$DEEPGEMM_GIT_REF" \
+            --wheel-dir /tmp/deepgemm/dist || \
+        echo "DeepGEMM build skipped (CUDA version requirement not met)"; \
+    else \
+        echo "DeepGEMM build skipped (DEEPGEMM_GIT_REF not set)"; \
+    fi
 
 # Ensure the wheel dir exists so COPY won't fail when DeepGEMM is skipped
 RUN mkdir -p /tmp/deepgemm/dist && touch /tmp/deepgemm/dist/.deepgemm_skipped
@@ -344,13 +349,17 @@ ARG DEEPEP_COMMIT_HASH=73b6ea4
 ARG NVSHMEM_VER
 RUN --mount=type=cache,target=/root/.cache/uv \
     mkdir -p /tmp/ep_kernels_workspace/dist && \
-    export TORCH_CUDA_ARCH_LIST='9.0a 10.0a' && \
-    /tmp/install_python_libraries.sh \
-        --workspace /tmp/ep_kernels_workspace \
-        --mode wheel \
-        ${DEEPEP_COMMIT_HASH:+--deepep-ref "$DEEPEP_COMMIT_HASH"} \
-        ${NVSHMEM_VER:+--nvshmem-ver "$NVSHMEM_VER"} && \
-    find /tmp/ep_kernels_workspace/nvshmem -name '*.a' -delete
+    if [ -n "${DEEPEP_COMMIT_HASH}" ]; then \
+        export TORCH_CUDA_ARCH_LIST='9.0a 10.0a' && \
+        /tmp/install_python_libraries.sh \
+            --workspace /tmp/ep_kernels_workspace \
+            --mode wheel \
+            --deepep-ref "$DEEPEP_COMMIT_HASH" \
+            ${NVSHMEM_VER:+--nvshmem-ver "$NVSHMEM_VER"} && \
+        find /tmp/ep_kernels_workspace/nvshmem -name '*.a' -delete; \
+    else \
+        echo "DeepEP build skipped (DEEPEP_COMMIT_HASH not set)"; \
+    fi
 #################### EXTENSIONS BUILD IMAGE ####################
 
 #################### WHEEL BUILD IMAGE ####################
@@ -554,6 +563,10 @@ RUN CUDA_VERSION_DASH=$(echo $CUDA_VERSION | cut -d. -f1,2 | tr '.' '-') && \
         libnccl-dev && \
     rm -rf /var/lib/apt/lists/*
 
+# Redeclare ARG so pip can use custom index for uv installation
+ARG PIP_INDEX_URL
+ARG PIP_TRUSTED_HOST
+
 # Install uv for faster pip installs
 RUN python3 -m pip install uv
 
@@ -574,6 +587,7 @@ ENV VLLM_ENABLE_CUDA_COMPATIBILITY=0
 
 # Install PyTorch and core CUDA dependencies
 # This is ~2GB and rarely changes
+ARG UV_INDEX_URL
 ARG PYTORCH_CUDA_INDEX_BASE_URL
 COPY requirements/common.txt /tmp/common.txt
 COPY requirements/cuda.txt /tmp/requirements-cuda.txt
@@ -586,12 +600,17 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # This is ~1.1GB and only changes when FlashInfer version bumps
 # https://docs.flashinfer.ai/installation.html
 # From versions.json: .flashinfer.version
+ARG INSTALL_FLASHINFER=true
 ARG FLASHINFER_VERSION=0.6.4
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv pip install --system flashinfer-cubin==${FLASHINFER_VERSION} \
-    && uv pip install --system flashinfer-jit-cache==${FLASHINFER_VERSION} \
-        --extra-index-url https://flashinfer.ai/whl/cu$(echo $CUDA_VERSION | cut -d. -f1,2 | tr -d '.') \
-    && flashinfer show-config
+    if [ "${INSTALL_FLASHINFER}" = "true" ]; then \
+        uv pip install --system flashinfer-cubin==${FLASHINFER_VERSION} \
+        && uv pip install --system flashinfer-jit-cache==${FLASHINFER_VERSION} \
+            --extra-index-url https://flashinfer.ai/whl/cu$(echo $CUDA_VERSION | cut -d. -f1,2 | tr -d '.') \
+        && flashinfer show-config; \
+    else \
+        echo "FlashInfer installation skipped (INSTALL_FLASHINFER=${INSTALL_FLASHINFER})"; \
+    fi
 
 # ============================================================
 # OPENAI API SERVER DEPENDENCIES
@@ -679,8 +698,12 @@ ENV LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
 # Install EP kernels wheels (DeepEP) that have been built in the `build` stage
 RUN --mount=type=bind,from=build,src=/tmp/ep_kernels_workspace/dist,target=/vllm-workspace/ep_kernels/dist \
     --mount=type=cache,target=/root/.cache/uv \
-    uv pip install --system ep_kernels/dist/*.whl --verbose \
-        --extra-index-url ${PYTORCH_CUDA_INDEX_BASE_URL}/cu$(echo $CUDA_VERSION | cut -d. -f1,2 | tr -d '.')
+    sh -c 'if ls /vllm-workspace/ep_kernels/dist/*.whl >/dev/null 2>&1; then \
+              uv pip install --system ep_kernels/dist/*.whl --verbose \
+              --extra-index-url ${PYTORCH_CUDA_INDEX_BASE_URL}/cu$(echo $CUDA_VERSION | cut -d. -f1,2 | tr -d "."); \
+           else \
+              echo "No EP kernel wheels to install; skipping."; \
+           fi'
 
 # CUDA image changed from /usr/local/nvidia to /usr/local/cuda in 12.8 but will
 # return to /usr/local/nvidia in 13.0 to allow container providers to mount drivers

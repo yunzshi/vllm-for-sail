@@ -6,7 +6,8 @@
 #
 # Architecture:
 #   1. detect-changes job: runs detect-changes.sh to determine affected groups
-#   2. Conditionally calls 8 sub-workflows based on changed files
+#   2. build-image job: builds test-ci Docker image with compiled vllm._C
+#   3. Conditionally calls 8 sub-workflows using the pre-built image
 #
 # Sub-workflows:
 #   fork-ci-core.yml         → attention, basic_correctness, cuda, engine, model_executor
@@ -32,12 +33,13 @@ on:
         type: boolean
         default: false
 
+permissions:
+  contents: read
+  packages: write
+
 concurrency:
   group: fork-ci-${{ github.ref }}
   cancel-in-progress: true
-
-env:
-  DOCKER_IMAGE_PLACEHOLDER: "REPLACE_WITH_YOUR_DOCKER_IMAGE"
 
 jobs:
   # ============================================================================
@@ -87,52 +89,151 @@ jobs:
           fi
 
   # ============================================================================
-  # Stage 2: Conditionally run sub-workflows
+  # Stage 2: Build test-ci Docker image with compiled vllm._C
+  # ============================================================================
+  build-image:
+    needs: detect-changes
+    if: |
+      needs.detect-changes.outputs.run_core == 'true' ||
+      needs.detect-changes.outputs.run_kernels == 'true' ||
+      needs.detect-changes.outputs.run_compile == 'true' ||
+      needs.detect-changes.outputs.run_distributed == 'true' ||
+      needs.detect-changes.outputs.run_entrypoints == 'true' ||
+      needs.detect-changes.outputs.run_models == 'true' ||
+      needs.detect-changes.outputs.run_functional == 'true' ||
+      needs.detect-changes.outputs.run_misc == 'true'
+    runs-on: [self-hosted, Linux, X64, A100]
+    timeout-minutes: 240
+    outputs:
+      image: ${{ steps.build.outputs.image }}
+    steps:
+      - name: Clean workspace
+        run: |
+          docker run --rm -v "$GITHUB_WORKSPACE:/workspace" \
+            alpine find /workspace -mindepth 1 -delete 2>/dev/null || true
+
+      - name: Checkout
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          git init
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
+          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git fetch --depth=1 origin "${GITHUB_REF}"
+          git checkout --force FETCH_HEAD
+
+      - name: Login to GHCR
+        run: echo "${{ github.token }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Set up Docker Buildx
+        run: |
+          # Create persistent buildx builder (survives across job runs on self-hosted runner)
+          # Internal BuildKit cache + mount caches persist in the builder container
+          docker buildx inspect vllm-builder >/dev/null 2>&1 || \
+            docker buildx create --name vllm-builder --driver docker-container
+          docker buildx use vllm-builder
+
+      - name: Build test-ci image
+        id: build
+        run: |
+          IMAGE="ghcr.io/${{ github.repository }}:test-ci-${GITHUB_SHA:0:12}"
+          # Skip if image exists locally or on GHCR
+          if docker image inspect "$IMAGE" >/dev/null 2>&1; then
+            echo "Image already exists locally, skipping build"
+          elif docker manifest inspect "$IMAGE" >/dev/null 2>&1; then
+            echo "Image exists on GHCR, pulling..."
+            docker pull "$IMAGE"
+          else
+            # Use NGC registry to avoid Docker Hub rate limits / connectivity issues
+            CUDA_VER="12.9.1"
+            # Use Aliyun PyPI mirror as primary index for faster downloads
+            PIP_MIRROR="https://mirrors.aliyun.com/pypi/simple/"
+            docker buildx build \
+              --target test \
+              --build-arg "max_jobs=$(nproc)" \
+              --build-arg nvcc_threads=8 \
+              --build-arg torch_cuda_arch_list="8.0" \
+              --build-arg SETUPTOOLS_SCM_PRETEND_VERSION="0.0.0+ci" \
+              --build-arg BUILD_BASE_IMAGE="nvcr.io/nvidia/cuda:${CUDA_VER}-devel-ubuntu20.04" \
+              --build-arg FINAL_BASE_IMAGE="nvcr.io/nvidia/cuda:${CUDA_VER}-base-ubuntu22.04" \
+              --build-arg PIP_INDEX_URL="${PIP_MIRROR}" \
+              --build-arg PIP_EXTRA_INDEX_URL="https://pypi.org/simple/" \
+              --build-arg UV_INDEX_URL="${PIP_MIRROR}" \
+              --build-arg UV_EXTRA_INDEX_URL="https://pypi.org/simple/" \
+              --build-arg PIP_TRUSTED_HOST=mirrors.aliyun.com \
+              --build-arg DEEPGEMM_GIT_REF="" \
+              --build-arg DEEPEP_COMMIT_HASH="" \
+              --build-arg RUN_WHEEL_CHECK=false \
+              --build-arg INSTALL_FLASHINFER=false \
+              --load \
+              -t "$IMAGE" \
+              -f docker/Dockerfile .
+            docker push "$IMAGE"
+          fi
+          echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
+
+  # ============================================================================
+  # Stage 3: Conditionally run sub-workflows with pre-built image
   # ============================================================================
   core:
-    needs: detect-changes
+    needs: [detect-changes, build-image]
     if: needs.detect-changes.outputs.run_core == 'true'
     uses: ./.github/workflows/fork-ci-core.yml
+    with:
+      docker_image: ${{ needs.build-image.outputs.image }}
     secrets: inherit
 
   kernels:
-    needs: detect-changes
+    needs: [detect-changes, build-image]
     if: needs.detect-changes.outputs.run_kernels == 'true'
     uses: ./.github/workflows/fork-ci-kernels.yml
+    with:
+      docker_image: ${{ needs.build-image.outputs.image }}
     secrets: inherit
 
   compile:
-    needs: detect-changes
+    needs: [detect-changes, build-image]
     if: needs.detect-changes.outputs.run_compile == 'true'
     uses: ./.github/workflows/fork-ci-compile.yml
+    with:
+      docker_image: ${{ needs.build-image.outputs.image }}
     secrets: inherit
 
   distributed:
-    needs: detect-changes
+    needs: [detect-changes, build-image]
     if: needs.detect-changes.outputs.run_distributed == 'true'
     uses: ./.github/workflows/fork-ci-distributed.yml
+    with:
+      docker_image: ${{ needs.build-image.outputs.image }}
     secrets: inherit
 
   entrypoints:
-    needs: detect-changes
+    needs: [detect-changes, build-image]
     if: needs.detect-changes.outputs.run_entrypoints == 'true'
     uses: ./.github/workflows/fork-ci-entrypoints.yml
+    with:
+      docker_image: ${{ needs.build-image.outputs.image }}
     secrets: inherit
 
   models:
-    needs: detect-changes
+    needs: [detect-changes, build-image]
     if: needs.detect-changes.outputs.run_models == 'true'
     uses: ./.github/workflows/fork-ci-models.yml
+    with:
+      docker_image: ${{ needs.build-image.outputs.image }}
     secrets: inherit
 
   functional:
-    needs: detect-changes
+    needs: [detect-changes, build-image]
     if: needs.detect-changes.outputs.run_functional == 'true'
     uses: ./.github/workflows/fork-ci-functional.yml
+    with:
+      docker_image: ${{ needs.build-image.outputs.image }}
     secrets: inherit
 
   misc:
-    needs: detect-changes
+    needs: [detect-changes, build-image]
     if: needs.detect-changes.outputs.run_misc == 'true'
     uses: ./.github/workflows/fork-ci-misc.yml
+    with:
+      docker_image: ${{ needs.build-image.outputs.image }}
     secrets: inherit

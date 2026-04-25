@@ -1,0 +1,69 @@
+# ==============================================================================
+# Fork CI - CPU Build & Test
+# ==============================================================================
+# Runs on GitHub-hosted runners (no GPU required).
+# Builds vLLM CPU image and runs CPU-only tests.
+#
+# Uses docker/Dockerfile.cpu target=vllm-test with GitHub Actions cache
+# for Docker layer caching across runs.
+# ==============================================================================
+
+name: Fork CI (CPU)
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: fork-ci-cpu-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cpu-build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Free disk space
+        run: |
+          # GitHub runners have ~14GB free; CPU image build needs ~8GB
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc
+          df -h /
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build CPU test image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile.cpu
+          target: vllm-test
+          load: true
+          tags: vllm-cpu-test:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            max_jobs=4
+
+      - name: Smoke test
+        run: |
+          docker run --rm vllm-cpu-test:latest \
+            python3 -c "import vllm; print('vLLM version:', vllm.__version__)"
+
+      - name: Run CPU-only tests
+        run: |
+          docker run --rm \
+            -e VLLM_TARGET_DEVICE=cpu \
+            vllm-cpu-test:latest \
+            pytest -v -x -m cpu_test \
+              tests/v1/core/ \
+              tests/v1/structured_output/test_utils.py \
+              tests/v1/test_serial_utils.py \
+              tests/v1/kv_connector/unit/ \
+              tests/v1/metrics/ \
+              tests/v1/streaming_input/ \
+              --timeout=300

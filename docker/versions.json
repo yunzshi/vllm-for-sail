@@ -64,6 +64,9 @@
     "RUN_WHEEL_CHECK": {
       "default": "true"
     },
+    "INSTALL_FLASHINFER": {
+      "default": "true"
+    },
     "FLASHINFER_VERSION": {
       "default": "0.6.4"
     },
