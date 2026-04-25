@@ -45,6 +45,8 @@ jobs:
   # ============================================================================
   detect-changes:
     runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
     outputs:
       run_core: ${{ steps.detect.outputs.run_core }}
       run_kernels: ${{ steps.detect.outputs.run_kernels }}
@@ -55,13 +57,22 @@ jobs:
       run_functional: ${{ steps.detect.outputs.run_functional }}
       run_misc: ${{ steps.detect.outputs.run_misc }}
     steps:
-      - name: Fix workspace permissions
-        run: docker run --rm -v "$GITHUB_WORKSPACE":"$GITHUB_WORKSPACE" alpine chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE" || true
-
+      - name: Clean workspace
+        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
+      - name: Install git
+        run: apt-get update && apt-get install -y git
       - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git init
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
+          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          # Fetch base branch for diff comparison
+          git fetch origin "+refs/heads/${{ github.base_ref || 'main' }}:refs/remotes/origin/${{ github.base_ref || 'main' }}"
+          # Fetch and checkout current PR/branch
+          git fetch origin "${GITHUB_REF}"
+          git checkout FETCH_HEAD
 
       - name: Detect changes
         id: detect
