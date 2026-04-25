@@ -28,6 +28,7 @@ jobs:
       - name: Checkout
         run: |
           cd "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git init
           git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
           git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
@@ -73,6 +74,7 @@ jobs:
       - name: Checkout
         run: |
           cd "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git init
           git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
           git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
@@ -107,6 +109,7 @@ jobs:
       - name: Checkout
         run: |
           cd "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git init
           git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
           git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
@@ -138,6 +141,7 @@ jobs:
       - name: Checkout
         run: |
           cd "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git init
           git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
           git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
@@ -184,6 +188,7 @@ jobs:
       - name: Checkout
         run: |
           cd "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git init
           git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
           git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
@@ -219,6 +224,7 @@ jobs:
       - name: Checkout
         run: |
           cd "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git init
           git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
           git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
@@ -248,6 +254,7 @@ jobs:
       - name: Checkout
         run: |
           cd "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git init
           git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
           git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
@@ -280,6 +287,7 @@ jobs:
       - name: Checkout
         run: |
           cd "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git init
           git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
           git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
@@ -321,6 +329,7 @@ jobs:
       - name: Checkout
         run: |
           cd "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git init
           git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
           git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
@@ -355,6 +364,7 @@ jobs:
       - name: Checkout
         run: |
           cd "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git init
           git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
           git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
@@ -387,6 +397,7 @@ jobs:
       - name: Checkout
         run: |
           cd "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git init
           git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
           git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
@@ -417,6 +428,7 @@ jobs:
       - name: Checkout
         run: |
           cd "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git init
           git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
           git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
@@ -446,6 +458,7 @@ jobs:
       - name: Checkout
         run: |
           cd "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git init
           git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
           git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
@@ -476,6 +489,7 @@ jobs:
       - name: Checkout
         run: |
           cd "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git init
           git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
           git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
@@ -508,6 +522,7 @@ jobs:
       - name: Checkout
         run: |
           cd "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git init
           git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
           git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
@@ -538,6 +553,7 @@ jobs:
       - name: Checkout
         run: |
           cd "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git init
           git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
           git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
@@ -570,6 +586,7 @@ jobs:
       - name: Checkout
         run: |
           cd "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git init
           git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
           git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
@@ -603,6 +620,7 @@ jobs:
       - name: Checkout
         run: |
           cd "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git init
           git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
           git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
@@ -632,6 +650,7 @@ jobs:
       - name: Checkout
         run: |
           cd "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git init
           git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
           git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
@@ -661,6 +680,7 @@ jobs:
       - name: Checkout
         run: |
           cd "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git init
           git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
           git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
@@ -690,6 +710,7 @@ jobs:
       - name: Checkout
         run: |
           cd "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git init
           git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
           git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
