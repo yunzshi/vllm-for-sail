@@ -28,7 +28,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
-          pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: tests
@@ -66,7 +66,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
-          pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: tests
@@ -93,7 +93,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
-          pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: tests
@@ -117,7 +117,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
-          pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: examples
@@ -156,7 +156,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
-          pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: tests
@@ -184,7 +184,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
-          pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: tests
@@ -206,7 +206,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
-          pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: tests
@@ -231,7 +231,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
-          pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: tests
@@ -265,7 +265,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
-          pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: tests
@@ -292,7 +292,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
-          pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: tests
@@ -317,7 +317,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
-          pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: tests
@@ -340,7 +340,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
-          pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
           pip install -e tests/vllm_test_utils
       - name: Run tests
         run: python3 benchmarks/attention_benchmarks/benchmark.py --backends flash flashinfer --batch-specs "8q1s1k" --repeats 1 --warmup-iters 1
@@ -362,7 +362,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
-          pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: tests
@@ -385,7 +385,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
-          pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: .buildkite/lm-eval-harness
@@ -410,7 +410,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
-          pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: tests
@@ -433,7 +433,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
-          pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: tests
@@ -458,7 +458,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
-          pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: tests
@@ -484,7 +484,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
-          pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
           pip install -e tests/vllm_test_utils
       - name: Run tests
         run: bash .buildkite/scripts/scheduled_integration_test/deepseek_v2_lite_ep_eplb.sh 0.25 200 8010
@@ -506,7 +506,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
-          pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
           pip install -e tests/vllm_test_utils
       - name: Run tests
         run: bash .buildkite/scripts/scheduled_integration_test/qwen30b_a3b_fp8_block_ep_eplb.sh 0.8 200 8020
@@ -528,7 +528,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
-          pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
           pip install -e tests/vllm_test_utils
       - name: Run tests
         run: bash .buildkite/scripts/scheduled_integration_test/qwen30b_a3b_fp8_block_ep_eplb.sh 0.8 200 8020 2 1
@@ -550,7 +550,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
-          pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
           pip install -e tests/vllm_test_utils
       - name: Run tests
         run: bash .buildkite/scripts/scheduled_integration_test/deepseek_v2_lite_prefetch_offload.sh 0.25 200 8030

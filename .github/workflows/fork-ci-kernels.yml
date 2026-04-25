@@ -27,7 +27,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
-          pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: tests
@@ -52,7 +52,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
-          pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: tests
@@ -77,7 +77,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
-          pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: tests
@@ -102,7 +102,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
-          pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: tests
@@ -126,7 +126,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
-          pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: tests
@@ -149,7 +149,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
-          pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: tests
@@ -176,7 +176,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
-          pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
           pip install -e tests/vllm_test_utils
       - name: Run tests
         run: |
@@ -222,7 +222,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
-          pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: tests
@@ -247,7 +247,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
-          pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: tests
@@ -278,7 +278,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
-          pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: tests
@@ -303,7 +303,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install test dependencies
         run: |
-          pip install -r requirements/dev.txt
+          PIP_CONSTRAINT="" pip install -r requirements/dev.txt
           pip install -e tests/vllm_test_utils
       - name: Run tests
         working-directory: tests
