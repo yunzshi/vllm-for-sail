@@ -37,6 +37,7 @@ jobs:
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
+          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
         run: |
           export VLLM_TEST_CLEAN_GPU_MEMORY=1
@@ -69,6 +70,7 @@ jobs:
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
+          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
         run: |
           export VLLM_TEST_CLEAN_GPU_MEMORY=1
@@ -101,6 +103,7 @@ jobs:
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
+          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
         run: |
           export VLLM_TEST_CLEAN_GPU_MEMORY=1
@@ -133,6 +136,7 @@ jobs:
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
+          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
         run: |
           export VLLM_TEST_CLEAN_GPU_MEMORY=1
@@ -165,6 +169,7 @@ jobs:
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
+          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
         run: |
           export VLLM_TEST_CLEAN_GPU_MEMORY=1
@@ -197,6 +202,7 @@ jobs:
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
+          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
         run: |
           nvidia-smi
@@ -232,6 +238,7 @@ jobs:
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
+          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
         run: |
           nvidia-smi
@@ -265,6 +272,7 @@ jobs:
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
+          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
         run: |
           nvidia-smi
@@ -297,6 +305,7 @@ jobs:
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
+          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
         run: |
           nvidia-smi
@@ -329,6 +338,7 @@ jobs:
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
+          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
         run: |
           nvidia-smi
@@ -362,6 +372,7 @@ jobs:
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
+          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
         run: |
           nvidia-smi
@@ -394,6 +405,7 @@ jobs:
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
+          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
         run: |
           nvidia-smi
@@ -426,6 +438,7 @@ jobs:
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
+          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
         run: |
           nvidia-smi

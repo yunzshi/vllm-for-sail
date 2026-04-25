@@ -38,6 +38,7 @@ jobs:
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
+          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
         working-directory: tests
         run: |
@@ -84,6 +85,7 @@ jobs:
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
+          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
         working-directory: tests
         run: |
@@ -119,6 +121,7 @@ jobs:
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
+          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
         working-directory: tests
         run: |
@@ -151,6 +154,7 @@ jobs:
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
+          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
         working-directory: examples
         run: |
@@ -198,6 +202,7 @@ jobs:
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
+          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
         working-directory: tests
         run: |
@@ -234,6 +239,7 @@ jobs:
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
+          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
         working-directory: tests
         run: bash standalone_tests/python_only_compile.sh
@@ -264,6 +270,7 @@ jobs:
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
+          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
         working-directory: tests
         run: |
@@ -297,6 +304,7 @@ jobs:
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
+          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
         working-directory: tests
         run: |
@@ -339,6 +347,7 @@ jobs:
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
+          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
         working-directory: tests
         run: |
@@ -374,6 +383,7 @@ jobs:
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
+          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
         working-directory: tests
         run: |
@@ -407,6 +417,7 @@ jobs:
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
+          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
         working-directory: tests
         run: pytest -v -s benchmarks/
@@ -438,6 +449,7 @@ jobs:
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
+          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
         run: python3 benchmarks/attention_benchmarks/benchmark.py --backends flash flashinfer --batch-specs "8q1s1k" --repeats 1 --warmup-iters 1
 
@@ -468,6 +480,7 @@ jobs:
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
+          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
         working-directory: tests
         run: pytest -s -v evals/gsm8k/test_gsm8k_correctness.py --config-list-file=configs/models-small.txt
@@ -499,6 +512,7 @@ jobs:
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
+          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
         working-directory: .buildkite/lm-eval-harness
         run: |
@@ -532,6 +546,7 @@ jobs:
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
+          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
         working-directory: tests
         run: pytest -s -v evals/gsm8k/test_gsm8k_correctness.py --config-list-file=configs/models-blackwell.txt
@@ -563,6 +578,7 @@ jobs:
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
+          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
         working-directory: tests
         run: |
@@ -596,6 +612,7 @@ jobs:
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
+          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
         working-directory: tests
         run: |
@@ -630,6 +647,7 @@ jobs:
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
+          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
         run: bash .buildkite/scripts/scheduled_integration_test/deepseek_v2_lite_ep_eplb.sh 0.25 200 8010
 
@@ -660,6 +678,7 @@ jobs:
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
+          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
         run: bash .buildkite/scripts/scheduled_integration_test/qwen30b_a3b_fp8_block_ep_eplb.sh 0.8 200 8020
 
@@ -690,6 +709,7 @@ jobs:
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
+          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
         run: bash .buildkite/scripts/scheduled_integration_test/qwen30b_a3b_fp8_block_ep_eplb.sh 0.8 200 8020 2 1
 
@@ -720,5 +740,6 @@ jobs:
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt --extra-index-url https://download.pytorch.org/whl/cu129
           pip install -e tests/vllm_test_utils
+          PIP_CONSTRAINT="" MAX_JOBS=$(nproc) pip install -e . --no-deps --no-build-isolation --extra-index-url https://download.pytorch.org/whl/cu129
       - name: Run tests
         run: bash .buildkite/scripts/scheduled_integration_test/deepseek_v2_lite_prefetch_offload.sh 0.25 200 8030
