@@ -24,7 +24,14 @@ jobs:
 
       - name: Install git
         run: apt-get update && apt-get install -y git
-      - uses: actions/checkout@v4
+      - name: Checkout
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          git init
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
+          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git fetch --depth=1 origin "${GITHUB_REF}"
+          git checkout --force FETCH_HEAD
       - name: Install test dependencies
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt
@@ -48,7 +55,14 @@ jobs:
 
       - name: Install git
         run: apt-get update && apt-get install -y git
-      - uses: actions/checkout@v4
+      - name: Checkout
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          git init
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
+          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git fetch --depth=1 origin "${GITHUB_REF}"
+          git checkout --force FETCH_HEAD
       - name: Install test dependencies
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt
@@ -74,7 +88,14 @@ jobs:
 
       - name: Install git
         run: apt-get update && apt-get install -y git
-      - uses: actions/checkout@v4
+      - name: Checkout
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          git init
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
+          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git fetch --depth=1 origin "${GITHUB_REF}"
+          git checkout --force FETCH_HEAD
       - name: Install test dependencies
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt
@@ -99,7 +120,14 @@ jobs:
 
       - name: Install git
         run: apt-get update && apt-get install -y git
-      - uses: actions/checkout@v4
+      - name: Checkout
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          git init
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
+          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git fetch --depth=1 origin "${GITHUB_REF}"
+          git checkout --force FETCH_HEAD
       - name: Install test dependencies
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt
@@ -125,7 +153,14 @@ jobs:
 
       - name: Install git
         run: apt-get update && apt-get install -y git
-      - uses: actions/checkout@v4
+      - name: Checkout
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          git init
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
+          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git fetch --depth=1 origin "${GITHUB_REF}"
+          git checkout --force FETCH_HEAD
       - name: Install test dependencies
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt
@@ -149,7 +184,14 @@ jobs:
 
       - name: Install git
         run: apt-get update && apt-get install -y git
-      - uses: actions/checkout@v4
+      - name: Checkout
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          git init
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
+          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git fetch --depth=1 origin "${GITHUB_REF}"
+          git checkout --force FETCH_HEAD
       - name: Install test dependencies
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt
@@ -171,7 +213,14 @@ jobs:
 
       - name: Install git
         run: apt-get update && apt-get install -y git
-      - uses: actions/checkout@v4
+      - name: Checkout
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          git init
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
+          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git fetch --depth=1 origin "${GITHUB_REF}"
+          git checkout --force FETCH_HEAD
       - name: Install test dependencies
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt
@@ -193,7 +242,14 @@ jobs:
 
       - name: Install git
         run: apt-get update && apt-get install -y git
-      - uses: actions/checkout@v4
+      - name: Checkout
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          git init
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
+          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git fetch --depth=1 origin "${GITHUB_REF}"
+          git checkout --force FETCH_HEAD
       - name: Install test dependencies
         run: |
           PIP_CONSTRAINT="" pip install -r requirements/dev.txt
