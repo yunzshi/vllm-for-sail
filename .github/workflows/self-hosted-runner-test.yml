@@ -9,6 +9,9 @@ on:
 jobs:
   verify-runner:
     runs-on: [self-hosted, Linux, X64, A100]
+    container:
+      image: ${{ vars.VLLM_DOCKER_IMAGE }}
+      options: --gpus all
     timeout-minutes: 10
 
     steps:
@@ -59,8 +62,19 @@ jobs:
           echo -n "docker: " && docker --version 2>/dev/null || echo "not found"
           echo -n "curl:   " && curl --version 2>/dev/null | head -1 || echo "not found"
 
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Clean workspace
+        run: find "$GITHUB_WORKSPACE" -mindepth 1 -delete 2>/dev/null || true
+
+      - name: Install git and checkout
+        run: |
+          apt-get update && apt-get install -y git
+          cd "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git init
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
+          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git fetch --depth=1 origin "${GITHUB_REF}"
+          git checkout --force FETCH_HEAD
 
       - name: Verify checkout
         run: |
