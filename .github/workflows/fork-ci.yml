@@ -147,6 +147,10 @@ jobs:
             CUDA_VER="12.9.1"
             # Use Aliyun PyPI mirror as primary index for faster downloads
             PIP_MIRROR="https://mirrors.aliyun.com/pypi/simple/"
+            # Patch: inject pypi.org as explicit CLI --extra-index-url in Dockerfile
+            # so uv always finds packages like num2words that are missing from Aliyun mirror.
+            # env-var-based fallback (UV_EXTRA_INDEX_URL) is unreliable inside Docker buildx.
+            sed -i 's|uv pip install|uv pip install --extra-index-url https://pypi.org/simple/|g' docker/Dockerfile
             docker buildx build \
               --target test \
               --build-arg "max_jobs=$(nproc)" \
