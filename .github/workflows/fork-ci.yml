@@ -132,16 +132,14 @@ jobs:
           if docker manifest inspect "$IMAGE" >/dev/null 2>&1; then
             echo "Image exists on GHCR, skipping build"
           else
-            CUDA_VER="12.9.1"
             # Build on GitHub-hosted runner: pypi.org is fast, no mirror/sed hacks needed
+            # BASE_IMAGE defaults in Dockerfile: nvidia/cuda:12.9.1-{devel,base}-ubuntu{20.04,22.04}
             docker buildx build \
               --target test \
               --build-arg max_jobs=4 \
               --build-arg nvcc_threads=2 \
               --build-arg torch_cuda_arch_list="8.0" \
               --build-arg SETUPTOOLS_SCM_PRETEND_VERSION="0.0.0+ci" \
-              --build-arg BUILD_BASE_IMAGE="nvcr.io/nvidia/cuda:${CUDA_VER}-devel-ubuntu20.04" \
-              --build-arg FINAL_BASE_IMAGE="nvcr.io/nvidia/cuda:${CUDA_VER}-base-ubuntu22.04" \
               --build-arg DEEPGEMM_GIT_REF="" \
               --build-arg DEEPEP_COMMIT_HASH="" \
               --build-arg RUN_WHEEL_CHECK=false \
