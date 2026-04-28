@@ -150,7 +150,7 @@ jobs:
             # Patch: inject pypi.org as explicit CLI --extra-index-url in Dockerfile
             # so uv always finds packages like num2words that are missing from Aliyun mirror.
             # env-var-based fallback (UV_EXTRA_INDEX_URL) is unreliable inside Docker buildx.
-            sed -i 's|uv pip install|uv pip install --extra-index-url https://pypi.org/simple/|g' docker/Dockerfile
+            sed -i 's|uv pip install|uv pip install --extra-index-url https://pypi.org/simple/ --retries 5|g' docker/Dockerfile
             docker buildx build \
               --target test \
               --build-arg "max_jobs=$(nproc)" \
