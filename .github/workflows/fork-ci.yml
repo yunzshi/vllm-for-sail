@@ -128,6 +128,8 @@ jobs:
         id: build
         run: |
           IMAGE="ghcr.io/${{ github.repository }}:test-ci-${GITHUB_SHA:0:12}"
+          # Registry-based BuildKit cache (persists across CI runs since GitHub runners are ephemeral)
+          CACHE_REF="ghcr.io/${{ github.repository }}:buildcache"
           # Skip if image already exists on GHCR
           if docker manifest inspect "$IMAGE" >/dev/null 2>&1; then
             echo "Image exists on GHCR, skipping build"
@@ -144,6 +146,8 @@ jobs:
               --build-arg DEEPEP_COMMIT_HASH="" \
               --build-arg RUN_WHEEL_CHECK=false \
               --build-arg INSTALL_FLASHINFER=false \
+              --cache-from "type=registry,ref=${CACHE_REF}" \
+              --cache-to "type=registry,ref=${CACHE_REF},mode=max" \
               --push \
               -t "$IMAGE" \
               -f docker/Dockerfile .
