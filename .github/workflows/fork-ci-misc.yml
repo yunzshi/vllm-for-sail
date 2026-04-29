@@ -18,6 +18,7 @@ jobs:
   # --- Misc ---
   v1-others:
     name: "V1 Others"
+    if: false  # Disabled: lm-eval test downloads HuggingFace models
     runs-on: [self-hosted, Linux, X64, A100]
     container:
       image: ${{ inputs.docker_image }}
@@ -77,6 +78,7 @@ jobs:
 
   examples:
     name: "Examples"
+    if: false  # Disabled: requires HuggingFace model downloads (facebook/opt-125m, meta-llama/Llama-2, etc.)
     runs-on: [self-hosted, Linux, X64, A100]
     container:
       image: ${{ inputs.docker_image }}
@@ -106,6 +108,7 @@ jobs:
 
   metrics-tracing:
     name: "Metrics, Tracing (2 GPUs)"
+    if: false  # Disabled: requires 2 GPUs
     runs-on: [self-hosted, Linux, X64, A100]
     container:
       image: ${{ inputs.docker_image }}
@@ -233,6 +236,7 @@ jobs:
   # --- LM Eval ---
   lm-eval-small:
     name: "LM Eval Small Models"
+    if: false  # Disabled: downloads HuggingFace models from configs/models-small.txt
     runs-on: [self-hosted, Linux, X64, A100]
     container:
       image: ${{ inputs.docker_image }}

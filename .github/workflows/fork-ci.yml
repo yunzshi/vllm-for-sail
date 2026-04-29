@@ -191,7 +191,8 @@ jobs:
 
   distributed:
     needs: [detect-changes, build-image]
-    if: needs.detect-changes.outputs.run_distributed == 'true'
+    # Disabled: all jobs require multi-GPU (TP/PP/DP/EP) which fork CI lacks
+    if: false && needs.detect-changes.outputs.run_distributed == 'true'
     uses: ./.github/workflows/fork-ci-distributed.yml
     with:
       docker_image: ${{ needs.build-image.outputs.image }}
@@ -199,7 +200,8 @@ jobs:
 
   entrypoints:
     needs: [detect-changes, build-image]
-    if: needs.detect-changes.outputs.run_entrypoints == 'true'
+    # Disabled: all jobs require downloading models from HuggingFace (no network)
+    if: false && needs.detect-changes.outputs.run_entrypoints == 'true'
     uses: ./.github/workflows/fork-ci-entrypoints.yml
     with:
       docker_image: ${{ needs.build-image.outputs.image }}
@@ -207,7 +209,8 @@ jobs:
 
   models:
     needs: [detect-changes, build-image]
-    if: needs.detect-changes.outputs.run_models == 'true'
+    # Disabled: all jobs require downloading models from HuggingFace (no network)
+    if: false && needs.detect-changes.outputs.run_models == 'true'
     uses: ./.github/workflows/fork-ci-models.yml
     with:
       docker_image: ${{ needs.build-image.outputs.image }}

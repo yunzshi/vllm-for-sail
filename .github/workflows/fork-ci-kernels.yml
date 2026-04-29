@@ -59,6 +59,7 @@ jobs:
 
   kernels-moe:
     name: "Kernels MoE (${{ matrix.shard }})"
+    if: false  # Disabled: requires multi-GPU for distributed MoE tests
     runs-on: [self-hosted, Linux, X64, A100]
     container:
       image: ${{ inputs.docker_image }}

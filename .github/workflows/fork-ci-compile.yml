@@ -17,6 +17,7 @@ on:
 jobs:
   seq-parallel-2gpu:
     name: "Sequence Parallel Correctness (2 GPUs)"
+    if: false  # Disabled: requires 2 GPUs + HuggingFace model download
     runs-on: [self-hosted, Linux, X64, A100]
     container:
       image: ${{ inputs.docker_image }}

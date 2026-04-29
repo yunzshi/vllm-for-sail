@@ -42,6 +42,7 @@ jobs:
 
   lora-tp:
     name: "LoRA TP (4 GPUs)"
+    if: false  # Disabled: requires 4 GPUs + HuggingFace model download
     runs-on: [self-hosted, Linux, X64, A100]
     container:
       image: ${{ inputs.docker_image }}
@@ -180,6 +181,7 @@ jobs:
   # --- Plugins ---
   plugins:
     name: "Plugin Tests (2 GPUs)"
+    if: false  # Disabled: requires 2 GPUs (distributed/test_distributed_oot.py)
     runs-on: [self-hosted, Linux, X64, A100]
     container:
       image: ${{ inputs.docker_image }}
@@ -226,6 +228,7 @@ jobs:
   # --- Weight Loading ---
   weight-loading:
     name: "Weight Loading (2 GPUs)"
+    if: false  # Disabled: requires 2 GPUs + HuggingFace model download
     runs-on: [self-hosted, Linux, X64, A100]
     container:
       image: ${{ inputs.docker_image }}

@@ -76,6 +76,7 @@ jobs:
 
   v1-e2e-2gpu:
     name: "V1 E2E (2 GPUs)"
+    if: false  # Disabled: requires 2 GPUs
     runs-on: [self-hosted, Linux, X64, A100]
     container:
       image: ${{ inputs.docker_image }}
@@ -88,6 +89,7 @@ jobs:
 
   v1-e2e-4gpu:
     name: "V1 E2E (4 GPUs)"
+    if: false  # Disabled: requires 4 GPUs
     runs-on: [self-hosted, Linux, X64, A100]
     container:
       image: ${{ inputs.docker_image }}
