@@ -1,0 +1,17 @@
+name: CI PPU Smoke
+
+on:
+  push:
+    branches: [test/ppu-smoke-ci]
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: [self-hosted, Linux, X64, ppu]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Hello
+        run: |
+          echo "Hello from PPU runner"
+          ppu-smi
