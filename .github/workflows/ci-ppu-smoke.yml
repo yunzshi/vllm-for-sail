@@ -71,21 +71,15 @@ jobs:
       - name: Show build info
         run: cat dist/build-info.txt
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       - name: Build Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: docker/Dockerfile.cpu
-          target: base
-          load: true
-          tags: vllm-ppu-smoke:${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          build-args: |
-            max_jobs=4
+        run: |
+          docker buildx build \
+            --file docker/Dockerfile.cpu \
+            --target base \
+            --build-arg max_jobs=4 \
+            --tag vllm-ppu-smoke:${{ github.sha }} \
+            --load \
+            .
 
       - name: PPU hardware check
         run: ppu-smi
