@@ -77,10 +77,6 @@ jobs:
     runs-on: [self-hosted, Linux, X64, ppu]
     needs: build
     timeout-minutes: 15
-    env:
-      HTTP_PROXY: http://172.26.46.100:3128
-      HTTPS_PROXY: http://172.26.46.100:3128
-      NO_PROXY: localhost,127.0.0.1
     steps:
       - name: Checkout
         uses: actions/checkout@v4
