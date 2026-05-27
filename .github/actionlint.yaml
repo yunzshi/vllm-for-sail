@@ -1,0 +1,7 @@
+# actionlint configuration
+# https://github.com/rhysd/actionlint/blob/main/docs/config.md
+#
+# 注册自托管 runner 的自定义标签，避免 actionlint 报 "label is unknown"。
+self-hosted-runner:
+  labels:
+    - ppu
