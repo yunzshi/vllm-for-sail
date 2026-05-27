@@ -24,6 +24,7 @@ from huggingface_hub.utils import (
 
 from vllm import envs
 from vllm.logger import init_logger
+from vllm.transformers_utils.utils import maybe_model_redirect
 
 logger = init_logger(__name__)
 
@@ -202,6 +203,10 @@ def file_or_path_exists(
 
 
 def get_model_path(model: str | Path, revision: str | None = None):
+    # Resolve VLLM_MODEL_REDIRECT_PATH before the local-path / offline
+    # checks below. EngineArgs.__post_init__ reaches us before the other
+    # maybe_model_redirect call sites (ModelConfig, HfRunner) get a chance.
+    model = maybe_model_redirect(model)
     if os.path.exists(model):
         return model
     assert huggingface_hub.constants.HF_HUB_OFFLINE
