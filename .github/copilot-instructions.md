@@ -23,10 +23,10 @@
 ## 3. 测试要求
 
 - 新功能必须在 `tests/` 下提供对应测试：
-  - 模型支持：`tests/models/`
-  - 算子 / Kernel：`tests/kernels/`
-  - 引擎 / 调度：`tests/engine/`、`tests/v1/`
-  - 服务接口：`tests/entrypoints/`
+    - 模型支持：`tests/models/`
+    - 算子 / Kernel：`tests/kernels/`
+    - 引擎 / 调度：`tests/engine/`、`tests/v1/`
+    - 服务接口：`tests/entrypoints/`
 - 修复 bug 须附带能复现该 bug 的回归测试。
 - 改动 `vllm/engine/`、`vllm/worker/`、`vllm/v1/` 等核心路径必须有测试覆盖。
 
